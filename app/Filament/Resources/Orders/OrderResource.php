@@ -84,9 +84,21 @@ class OrderResource extends Resource
                             : 'توصيل للعميل نفسه'),
                     Placeholder::make('address')
                         ->label('العنوان')
-                        ->content(fn (Order $record): string => $record->address
-                            ? collect([$record->address->area, $record->address->street, $record->address->building ? 'مبنى '.$record->address->building : null, $record->address->floor ? 'دور '.$record->address->floor : null, $record->address->apartment ? 'شقة '.$record->address->apartment : null, $record->address->landmark])->filter()->implode('، ')
-                            : '—')
+                        ->content(function (Order $record): HtmlString {
+                            if (! $record->address) {
+                                return new HtmlString('—');
+                            }
+
+                            $a = $record->address;
+                            $text = e(collect([$a->area, $a->street, $a->building ? 'مبنى '.$a->building : null, $a->floor ? 'دور '.$a->floor : null, $a->apartment ? 'شقة '.$a->apartment : null, $a->landmark])->filter()->implode('، '));
+
+                            if ($a->lat && $a->lng) {
+                                $url = "https://www.google.com/maps?q={$a->lat},{$a->lng}";
+                                $text .= ' &nbsp; <a href="'.$url.'" target="_blank" style="color:#D81D35;font-weight:bold;text-decoration:underline;">📍 افتح على الخريطة</a>';
+                            }
+
+                            return new HtmlString($text);
+                        })
                         ->columnSpanFull(),
                     Placeholder::make('items_list')
                         ->label('المنتجات')
