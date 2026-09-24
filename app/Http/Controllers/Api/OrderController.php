@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OrderConfirmed;
 use App\Models\CardDesign;
 use App\Models\Order;
 use App\Models\Product;
@@ -11,6 +12,7 @@ use App\Models\WrapOption;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -64,13 +66,29 @@ class OrderController extends Controller
             ]);
 
             foreach ($data['items'] as $item) {
-                $product = Product::findOrFail($item['product_id']);
+                // قفل الصف عشان اتنين ميطلبوش آخر قطعة في نفس اللحظة
+                $product = Product::whereKey($item['product_id'])->lockForUpdate()->firstOrFail();
+
+                // التحقق من المخزون (null = كمية غير محدودة)
+                if ($product->stock !== null && $item['qty'] > $product->stock) {
+                    throw ValidationException::withMessages([
+                        'items' => $product->stock > 0
+                            ? "المتاح من {$product->name} هو {$product->stock} فقط"
+                            : "{$product->name} نفدت كميته للأسف",
+                    ]);
+                }
+
                 $order->items()->create([
                     'product_id' => $product->id,
                     'product_name' => $product->name,
                     'price' => $product->price, // snapshot وقت الطلب
                     'qty' => $item['qty'],
                 ]);
+
+                // خصم الكمية من المخزون
+                if ($product->stock !== null) {
+                    $product->decrement('stock', $item['qty']);
+                }
             }
 
             $order->load('items');
@@ -78,6 +96,15 @@ class OrderController extends Controller
 
             return $order;
         });
+
+        // إيميل تأكيد الطلب — فشل الإرسال عمره ما يكسر الطلب نفسه
+        if ($user->email) {
+            try {
+                Mail::to($user->email)->send(new OrderConfirmed($order));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
 
         return response()->json(['order' => $this->payload($order)], 201);
     }
@@ -87,7 +114,7 @@ class OrderController extends Controller
     {
         return response()->json([
             'orders' => $request->user()->orders()
-                ->with('items')
+                ->with('items', 'address')
                 ->latest()
                 ->get()
                 ->map(fn ($o) => $this->payload($o)),
@@ -98,7 +125,32 @@ class OrderController extends Controller
     {
         abort_unless($order->user_id === $request->user()->id, 403);
 
-        return response()->json(['order' => $this->payload($order->load('items'))]);
+        return response()->json(['order' => $this->payload($order->load('items', 'address'))]);
+    }
+
+    /** إلغاء طلب — بس طالما لسه جديد */
+    public function cancel(Request $request, Order $order): JsonResponse
+    {
+        abort_unless($order->user_id === $request->user()->id, 403);
+
+        if ($order->status !== 'pending') {
+            throw ValidationException::withMessages([
+                'order' => 'الطلب دخل مرحلة التجهيز ومينفعش يتلغي — كلمنا وإحنا نظبطك',
+            ]);
+        }
+
+        DB::transaction(function () use ($order) {
+            $order->update(['status' => 'cancelled']);
+
+            // رجّع الكميات للمخزون
+            foreach ($order->items as $item) {
+                Product::whereKey($item->product_id)
+                    ->whereNotNull('stock')
+                    ->increment('stock', $item->qty);
+            }
+        });
+
+        return response()->json(['order' => $this->payload($order->fresh()->load('items'))]);
     }
 
     private function payload(Order $o): array
@@ -123,6 +175,15 @@ class OrderController extends Controller
             'items_total' => (float) $o->items_total,
             'delivery_fee' => (float) $o->delivery_fee,
             'total' => (float) $o->total,
+            'recipient_name' => $o->recipient_name,
+            'recipient_phone' => $o->recipient_phone,
+            'address' => $o->address ? [
+                'label' => $o->address->label,
+                'area' => $o->address->area,
+                'street' => $o->address->street,
+                'building' => $o->address->building,
+            ] : null,
+            'can_cancel' => $o->status === 'pending',
             'created_at' => $o->created_at->toIso8601String(),
         ];
     }

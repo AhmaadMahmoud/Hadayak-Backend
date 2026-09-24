@@ -104,6 +104,9 @@ class CatalogController extends Controller
         return response()->json([
             'delivery_fee' => (float) Setting::get('delivery_fee', 50),
             'cod_enabled' => (bool) (int) Setting::get('cod_enabled', 0),
+            'support_phone' => Setting::get('support_phone', ''),
+            'support_whatsapp' => Setting::get('support_whatsapp', ''),
+            'support_email' => Setting::get('support_email', 'orders@hadayak.com'),
         ]);
     }
 

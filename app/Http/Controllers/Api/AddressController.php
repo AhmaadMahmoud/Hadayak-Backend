@@ -47,6 +47,33 @@ class AddressController extends Controller
         return response()->json(['address' => $this->payload($address)], 201);
     }
 
+    public function update(Request $request, Address $address): JsonResponse
+    {
+        abort_unless($address->user_id === $request->user()->id, 403);
+
+        $data = $request->validate([
+            'label' => ['required', 'in:home,office,other'],
+            'area' => ['required', 'string', 'max:255'],
+            'street' => ['required', 'string', 'max:255'],
+            'building' => ['nullable', 'string', 'max:50'],
+            'floor' => ['nullable', 'string', 'max:50'],
+            'apartment' => ['nullable', 'string', 'max:50'],
+            'landmark' => ['nullable', 'string', 'max:500'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'lat' => ['nullable', 'numeric', 'between:-90,90'],
+            'lng' => ['nullable', 'numeric', 'between:-180,180'],
+            'is_default' => ['boolean'],
+        ]);
+
+        if ($data['is_default'] ?? false) {
+            $request->user()->addresses()->whereKeyNot($address->id)->update(['is_default' => false]);
+        }
+
+        $address->update($data);
+
+        return response()->json(['address' => $this->payload($address->fresh())]);
+    }
+
     public function destroy(Request $request, Address $address): JsonResponse
     {
         abort_unless($address->user_id === $request->user()->id, 403);

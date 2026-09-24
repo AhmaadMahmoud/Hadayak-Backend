@@ -58,6 +58,24 @@ class Order extends Model
                 $order->hide_invoice = true;
             }
         });
+
+        // إيميل للعميل مع كل تغيير في حالة الطلب — فشله عمره ما يكسر التحديث
+        static::updated(function (Order $order) {
+            if (! $order->wasChanged('status') || $order->status === 'pending') {
+                return;
+            }
+
+            $email = $order->user?->email;
+
+            if ($email) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($email)
+                        ->send(new \App\Mail\OrderStatusUpdated($order));
+                } catch (\Throwable $e) {
+                    report($e);
+                }
+            }
+        });
     }
 
     public function user(): BelongsTo
