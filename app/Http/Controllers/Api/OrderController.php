@@ -34,77 +34,7 @@ class OrderController extends Controller
             'payment_method' => ['required', 'in:card,vodafone_cash,instapay,cod'],
         ]);
 
-        $user = $request->user();
-
-        // العنوان لازم يكون بتاع نفس المستخدم
-        abort_unless(
-            $user->addresses()->whereKey($data['address_id'])->exists(),
-            403, 'العنوان غير صحيح',
-        );
-
-        // الدفع عند الاستلام حسب الإعدادات
-        if ($data['payment_method'] === 'cod' && ! (bool) (int) Setting::get('cod_enabled', 0)) {
-            throw ValidationException::withMessages(['payment_method' => 'الدفع عند الاستلام غير متاح لهذا الطلب']);
-        }
-
-        $order = DB::transaction(function () use ($data, $user) {
-            $wrap = isset($data['wrap_option_id']) ? WrapOption::find($data['wrap_option_id']) : null;
-            $card = isset($data['card_design_id']) ? CardDesign::find($data['card_design_id']) : null;
-
-            $order = $user->orders()->create([
-                'address_id' => $data['address_id'],
-                'delivery_type' => $data['delivery_type'],
-                'recipient_name' => $data['recipient_name'] ?? null,
-                'recipient_phone' => $data['recipient_phone'] ?? null,
-                'wrap_option_id' => $wrap?->id,
-                'wrap_price' => $wrap?->price ?? 0,
-                'card_design_id' => $card?->id,
-                'card_price' => $card?->price ?? 0,
-                'card_message' => $data['card_message'] ?? null,
-                'payment_method' => $data['payment_method'],
-                'delivery_fee' => (float) Setting::get('delivery_fee', 50),
-            ]);
-
-            foreach ($data['items'] as $item) {
-                // قفل الصف عشان اتنين ميطلبوش آخر قطعة في نفس اللحظة
-                $product = Product::whereKey($item['product_id'])->lockForUpdate()->firstOrFail();
-
-                // التحقق من المخزون (null = كمية غير محدودة)
-                if ($product->stock !== null && $item['qty'] > $product->stock) {
-                    throw ValidationException::withMessages([
-                        'items' => $product->stock > 0
-                            ? "المتاح من {$product->name} هو {$product->stock} فقط"
-                            : "{$product->name} نفدت كميته للأسف",
-                    ]);
-                }
-
-                $order->items()->create([
-                    'product_id' => $product->id,
-                    'product_name' => $product->name,
-                    'price' => $product->price, // snapshot وقت الطلب
-                    'qty' => $item['qty'],
-                ]);
-
-                // خصم الكمية من المخزون
-                if ($product->stock !== null) {
-                    $product->decrement('stock', $item['qty']);
-                }
-            }
-
-            $order->load('items');
-            $order->recalculateTotals();
-
-            return $order;
-        });
-
-        // إيميل تأكيد الطلب — فشل الإرسال عمره ما يكسر الطلب نفسه
-        if ($user->email) {
-            try {
-                Mail::to($user->email)->send(new OrderConfirmed($order));
-            } catch (\Throwable $e) {
-                report($e);
-            }
-        }
+        $order = \App\Services\PlaceOrder::handle($request->user(), $data);
 
         return response()->json(['order' => $this->payload($order)], 201);
     }

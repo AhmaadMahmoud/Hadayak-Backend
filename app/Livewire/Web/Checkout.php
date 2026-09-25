@@ -1,0 +1,175 @@
+<?php
+
+namespace App\Livewire\Web;
+
+use App\Models\Setting;
+use App\Services\PlaceOrder;
+use App\Services\WebCart;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
+
+class Checkout extends Component
+{
+    public ?int $addressId = null;
+
+    public bool $showNewAddress = false;
+
+    // عنوان جديد
+    public string $area = '';
+
+    public string $street = '';
+
+    public string $building = '';
+
+    public string $floor = '';
+
+    public string $apartment = '';
+
+    public string $landmark = '';
+
+    public string $addressPhone = '';
+
+    // التوصيل
+    public string $deliveryType = 'me';
+
+    public string $recipientName = '';
+
+    public string $recipientPhone = '';
+
+    public string $paymentMethod = 'card';
+
+    public ?string $error = null;
+
+    public function mount()
+    {
+        if (! Auth::check()) {
+            session(['url.intended' => route('web.checkout')]);
+
+            return $this->redirect(route('web.login'), navigate: true);
+        }
+
+        if (empty(WebCart::items())) {
+            return $this->redirect(route('web.cart'), navigate: true);
+        }
+
+        $default = Auth::user()->addresses()->orderByDesc('is_default')->latest()->first();
+        $this->addressId = $default?->id;
+        $this->showNewAddress = $default === null;
+
+        \App\Support\Track::event('checkout_started', null, ['cart_total' => WebCart::itemsTotal()], page: 'web.checkout');
+    }
+
+    public function selectAddress(int $id): void
+    {
+        $this->addressId = $id;
+        $this->showNewAddress = false;
+    }
+
+    public function toggleNewAddress(): void
+    {
+        $this->showNewAddress = ! $this->showNewAddress;
+    }
+
+    public function setDeliveryType(string $type): void
+    {
+        if (in_array($type, ['me', 'gift'], true)) {
+            $this->deliveryType = $type;
+        }
+    }
+
+    public function setPayment(string $method): void
+    {
+        $cod = (bool) (int) Setting::get('cod_enabled', 0);
+
+        if (in_array($method, ['card', 'vodafone_cash', 'instapay'], true) || ($method === 'cod' && $cod)) {
+            $this->paymentMethod = $method;
+        }
+    }
+
+    public function placeOrder()
+    {
+        $this->error = null;
+        $user = Auth::user();
+
+        // عنوان جديد لو مفيش عنوان مختار
+        if ($this->showNewAddress || ! $this->addressId) {
+            $this->validate(
+                ['area' => 'required', 'street' => 'required'],
+                ['area.required' => 'اكتب المنطقة', 'street.required' => 'اكتب الشارع'],
+            );
+
+            $address = $user->addresses()->create([
+                'label' => 'home',
+                'area' => $this->area,
+                'street' => $this->street,
+                'building' => $this->building ?: null,
+                'floor' => $this->floor ?: null,
+                'apartment' => $this->apartment ?: null,
+                'landmark' => $this->landmark ?: null,
+                'phone' => $this->addressPhone ?: $user->phone,
+            ]);
+
+            $this->addressId = $address->id;
+        }
+
+        if ($this->deliveryType === 'gift') {
+            $this->validate(
+                ['recipientName' => 'required', 'recipientPhone' => 'required'],
+                [
+                    'recipientName.required' => 'اكتب اسم المستلم — الهدية رايحة لمين؟',
+                    'recipientPhone.required' => 'اكتب رقم موبايل المستلم',
+                ],
+            );
+        }
+
+        try {
+            $order = PlaceOrder::handle($user, [
+                'items' => collect(WebCart::items())->map(fn ($i) => [
+                    'product_id' => $i['id'],
+                    'qty' => $i['qty'],
+                ])->values()->all(),
+                'address_id' => $this->addressId,
+                'delivery_type' => $this->deliveryType,
+                'recipient_name' => $this->deliveryType === 'gift' ? $this->recipientName : null,
+                'recipient_phone' => $this->deliveryType === 'gift' ? $this->recipientPhone : null,
+                'wrap_option_id' => WebCart::wrapId(),
+                'card_design_id' => WebCart::cardId(),
+                'card_message' => WebCart::cardMessage(),
+                'payment_method' => $this->paymentMethod,
+            ]);
+        } catch (ValidationException $e) {
+            $this->error = collect($e->errors())->flatten()->first();
+
+            return;
+        }
+
+        \App\Support\Track::event('order_placed', $order->number, [
+            'order_id' => $order->id,
+            'total' => (float) $order->total,
+        ], page: 'web.checkout');
+
+        WebCart::clear();
+        $this->dispatch('cart-updated');
+        session()->flash('order_placed', $order->number);
+
+        return $this->redirect(route('web.order', $order), navigate: true);
+    }
+
+    #[Layout('components.web.layout', ['title' => 'إتمام الطلب'])]
+    #[Title('إتمام الطلب — هداياك')]
+    public function render()
+    {
+        return view('livewire.web.checkout', [
+            'addresses' => Auth::user()?->addresses()->orderByDesc('is_default')->latest()->get() ?? collect(),
+            'items' => WebCart::items(),
+            'itemsTotal' => WebCart::itemsTotal(),
+            'wrapPrice' => WebCart::wrapPrice(),
+            'cardPrice' => WebCart::cardPrice(),
+            'deliveryFee' => (float) Setting::get('delivery_fee', 50),
+            'codEnabled' => (bool) (int) Setting::get('cod_enabled', 0),
+        ]);
+    }
+}
