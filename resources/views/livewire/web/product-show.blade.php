@@ -16,19 +16,75 @@
     <div class="mt-6 grid gap-8 lg:grid-cols-2">
         {{-- Gallery --}}
         <div
-            x-data="{ active: 0, images: {{ $images->toJson() }} }"
+            x-data="{
+                active: 0,
+                images: {{ $images->toJson() }},
+                startX: null,
+                go(i) {
+                    const n = this.images.length;
+                    if (! n) return;
+                    this.active = (i + n) % n;
+                    this.$nextTick(() => this.$root.querySelector(`[data-thumb='${this.active}']`)?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' }));
+                },
+                next() { this.go(this.active + 1) },
+                prev() { this.go(this.active - 1) },
+                swipeEnd(x) {
+                    if (this.startX === null) return;
+                    const dx = x - this.startX;
+                    this.startX = null;
+                    if (Math.abs(dx) < 40) return;
+                    {{-- الصفحة RTL: السحب لليمين يجيب الصورة اللي بعدها --}}
+                    dx > 0 ? this.next() : this.prev();
+                },
+            }"
             class="space-y-3"
         >
-            <div class="relative aspect-square overflow-hidden rounded-3xl border border-sand bg-white">
+            <div
+                class="group relative aspect-square overflow-hidden rounded-3xl border border-sand bg-white"
+                x-on:touchstart.passive="startX = $event.touches[0].clientX"
+                x-on:touchend="swipeEnd($event.changedTouches[0].clientX)"
+            >
                 <template x-if="images.length">
-                    <img :src="images[active]" alt="{{ $product->name }}" class="size-full object-cover">
+                    <div
+                        class="flex size-full transition-transform duration-500 ease-out"
+                        :style="`transform: translateX(${active * 100}%)`"
+                    >
+                        <template x-for="(img, i) in images" :key="i">
+                            <img :src="img" alt="{{ $product->name }}" :loading="i === 0 ? 'eager' : 'lazy'" class="size-full shrink-0 object-cover" draggable="false">
+                        </template>
+                    </div>
                 </template>
                 <template x-if="! images.length">
                     <span class="flex size-full items-center justify-center text-7xl">🎁</span>
                 </template>
 
+                <template x-if="images.length > 1">
+                    <div>
+                        {{-- Arrows --}}
+                        <button type="button" x-on:click="prev()" class="absolute right-3 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand shadow-md transition hover:bg-white active:scale-95" aria-label="الصورة السابقة">
+                            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                        <button type="button" x-on:click="next()" class="absolute left-3 top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand shadow-md transition hover:bg-white active:scale-95" aria-label="الصورة التالية">
+                            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+
+                        {{-- Dots --}}
+                        <div class="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+                            <template x-for="(img, i) in images" :key="'dot' + i">
+                                <button
+                                    type="button"
+                                    x-on:click="go(i)"
+                                    class="h-2 rounded-full shadow transition-all duration-300"
+                                    :class="active === i ? 'w-6 bg-white' : 'w-2 bg-white/60 hover:bg-white/90'"
+                                    :aria-label="'صورة ' + (i + 1)"
+                                ></button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
                 @unless ($inStock)
-                    <span class="absolute inset-x-0 top-0 bg-brand/90 py-2 text-center text-sm font-bold text-white">نفدت الكمية</span>
+                    <span class="absolute inset-x-0 top-0 z-10 bg-brand/90 py-2 text-center text-sm font-bold text-white">نفدت الكمية</span>
                 @endunless
             </div>
 
@@ -37,7 +93,8 @@
                     <template x-for="(img, i) in images" :key="i">
                         <button
                             type="button"
-                            x-on:click="active = i"
+                            :data-thumb="i"
+                            x-on:click="go(i)"
                             class="size-20 shrink-0 overflow-hidden rounded-xl border-2 transition"
                             :class="active === i ? 'border-brand' : 'border-sand opacity-70 hover:opacity-100'"
                         >
