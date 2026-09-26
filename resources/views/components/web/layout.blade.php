@@ -152,7 +152,7 @@
 
     {{-- Footer --}}
     <footer class="mt-12 bg-gradient-to-bl from-brand to-brand-deep text-white">
-        <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
+        <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
             <div>
                 <div class="flex items-center gap-2">
                     <img src="{{ asset('images/logo-white.png') }}" alt="هداياك" class="h-10 w-auto">
@@ -183,9 +183,26 @@
                     <a href="{{ route('web.cart') }}" wire:navigate class="transition hover:text-white">سلة الهدايا</a>
                 </nav>
             </div>
+            <div>
+                <p class="text-sm font-extrabold text-accent">تابعنا</p>
+                @php
+                    $socials = [
+                        ['label' => 'Instagram', 'url' => \App\Models\Setting::get('instagram_url', '#'), 'icon' => '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor"/>'],
+                        ['label' => 'Facebook', 'url' => \App\Models\Setting::get('facebook_url', '#'), 'icon' => '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>'],
+                        ['label' => 'LinkedIn', 'url' => \App\Models\Setting::get('linkedin_url', '#'), 'icon' => '<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>'],
+                    ];
+                @endphp
+                <div class="mt-3 flex gap-2">
+                    @foreach ($socials as $social)
+                        <a href="{{ $social['url'] }}" target="_blank" rel="noopener" aria-label="{{ $social['label'] }}" class="flex size-8 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white hover:text-brand">
+                            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $social['icon'] !!}</svg>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
         </div>
         <div class="border-t border-white/15 py-4 text-center text-xs text-white/60">
-            © {{ now()->year }} هداياك — صنع بحب في مصر ❤️
+            © {{ now()->year }} هداياك
         </div>
     </footer>
     <x-web.cart-toast />
