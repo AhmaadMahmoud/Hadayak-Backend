@@ -140,7 +140,7 @@
                         $srvImg = $service->image ? \Illuminate\Support\Facades\Storage::disk('public')->url($service->image) : null;
                     @endphp
                     <a
-                        href="{{ route('web.contact', ['service' => $service->name]) }}"
+                        href="{{ route('web.service', $service) }}"
                         wire:navigate
                         class="group relative block aspect-[4/3] overflow-hidden rounded-2xl bg-ink"
                     >
