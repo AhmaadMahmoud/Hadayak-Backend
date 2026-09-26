@@ -8,7 +8,8 @@ echo "⬇️  بنسحب آخر نسخة من GitHub..."
 git pull origin main
 
 echo "📦 بنحدث الحزم (لو اتغيرت)..."
-composer install --no-dev --optimize-autoloader --no-interaction
+composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+php artisan package:discover --ansi
 
 echo "🗄  بنشغل الميجريشن..."
 php artisan migrate --force
