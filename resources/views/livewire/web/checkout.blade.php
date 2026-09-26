@@ -3,6 +3,28 @@
 
     <div class="mt-6 grid gap-8 lg:grid-cols-3">
         <div class="space-y-6 lg:col-span-2">
+            {{-- Guest contact info --}}
+            @guest
+                <div class="rounded-2xl border border-sand bg-white p-5">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-extrabold text-ink">👋 بياناتك</h2>
+                        <a href="{{ route('web.login') }}" wire:navigate class="text-sm font-bold text-brand hover:underline">
+                            عندك حساب؟ سجل دخولك
+                        </a>
+                    </div>
+                    <p class="mt-1 text-xs text-mocha">هنبعتلك تأكيد الطلب وتحديثاته على إيميلك</p>
+
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                        <input type="text" wire:model="guestName" placeholder="الاسم" autocomplete="name"
+                            class="w-full rounded-2xl border border-sand bg-cream px-5 py-3 text-sm font-bold text-ink placeholder:text-mocha/50 focus:border-brand focus:outline-none">
+                        <input type="tel" wire:model="guestPhone" placeholder="رقم الموبايل" autocomplete="tel"
+                            class="w-full rounded-2xl border border-sand bg-cream px-5 py-3 text-sm font-bold text-ink placeholder:text-mocha/50 focus:border-brand focus:outline-none">
+                        <input type="email" wire:model="guestEmail" placeholder="البريد الإلكتروني" autocomplete="email" dir="ltr" style="text-align: right;"
+                            class="w-full rounded-2xl border border-sand bg-cream px-5 py-3 text-sm font-bold text-ink placeholder:text-mocha/50 focus:border-brand focus:outline-none sm:col-span-2">
+                    </div>
+                </div>
+            @endguest
+
             {{-- Delivery type --}}
             <div class="rounded-2xl border border-sand bg-white p-5">
                 <h2 class="text-lg font-extrabold text-ink">الطلب دا لمين؟</h2>

@@ -15,6 +15,13 @@ class Checkout extends Component
 {
     public ?int $addressId = null;
 
+    // بيانات الزائر (من غير حساب)
+    public string $guestName = '';
+
+    public string $guestPhone = '';
+
+    public string $guestEmail = '';
+
     public bool $showNewAddress = false;
 
     // عنوان جديد
@@ -45,19 +52,17 @@ class Checkout extends Component
 
     public function mount()
     {
-        if (! Auth::check()) {
-            session(['url.intended' => route('web.checkout')]);
-
-            return $this->redirect(route('web.login'), navigate: true);
-        }
-
         if (empty(WebCart::items())) {
             return $this->redirect(route('web.cart'), navigate: true);
         }
 
-        $default = Auth::user()->addresses()->orderByDesc('is_default')->latest()->first();
-        $this->addressId = $default?->id;
-        $this->showNewAddress = $default === null;
+        if (Auth::check()) {
+            $default = Auth::user()->addresses()->orderByDesc('is_default')->latest()->first();
+            $this->addressId = $default?->id;
+            $this->showNewAddress = $default === null;
+        } else {
+            $this->showNewAddress = true;
+        }
 
         \App\Support\Track::event('checkout_started', null, ['cart_total' => WebCart::itemsTotal()], page: 'web.checkout');
     }
@@ -92,6 +97,47 @@ class Checkout extends Component
     public function placeOrder()
     {
         $this->error = null;
+
+        // زائر من غير حساب؟ نتأكد من بياناته ونعمله حساب على السريع
+        if (! Auth::check()) {
+            $this->validate(
+                [
+                    'guestName' => 'required|max:255',
+                    'guestPhone' => 'required|max:20',
+                    'guestEmail' => 'required|email',
+                ],
+                [
+                    'guestName.required' => 'اكتب اسمك',
+                    'guestPhone.required' => 'اكتب رقم موبايلك',
+                    'guestEmail.required' => 'اكتب بريدك الإلكتروني عشان نبعتلك تأكيد الطلب',
+                    'guestEmail.email' => 'البريد الإلكتروني مش صحيح',
+                ],
+            );
+
+            $existing = \App\Models\User::where('phone', $this->guestPhone)
+                ->orWhere('email', $this->guestEmail)
+                ->first();
+
+            if ($existing) {
+                session(['url.intended' => route('web.checkout')]);
+                $this->error = 'الرقم أو الإيميل دا مسجل عندنا قبل كدا — سجل دخولك وهتلاقي كل حاجة محفوظة ليك';
+
+                return;
+            }
+
+            $guest = \App\Models\User::create([
+                'name' => $this->guestName,
+                'phone' => $this->guestPhone,
+                'email' => $this->guestEmail,
+                'password' => \Illuminate\Support\Str::random(24),
+            ]);
+
+            Auth::login($guest, remember: true);
+            session()->regenerate();
+
+            \App\Support\Track::event('registered', $guest->name, ['user_id' => $guest->id, 'via' => 'guest_checkout'], page: 'web.checkout');
+        }
+
         $user = Auth::user();
 
         // عنوان جديد لو مفيش عنوان مختار
