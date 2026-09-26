@@ -90,7 +90,31 @@
                 <h2 class="text-2xl font-extrabold text-ink">الأقسام</h2>
                 <a href="{{ route('web.products') }}" wire:navigate class="text-sm font-bold text-brand hover:underline">كل المنتجات ←</a>
             </div>
-            <div class="mt-5 grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+            <div
+                x-data="{
+                    atStart: true,
+                    atEnd: false,
+                    update() {
+                        const el = this.$refs.track;
+                        {{-- في RTL الـ scrollLeft بيبقى سالب --}}
+                        const x = Math.abs(el.scrollLeft);
+                        this.atStart = x <= 2;
+                        this.atEnd = x + el.clientWidth >= el.scrollWidth - 2;
+                    },
+                    scroll(dir) {
+                        const el = this.$refs.track;
+                        el.scrollBy({ left: -dir * el.clientWidth * 0.8, behavior: 'smooth' });
+                    },
+                }"
+                x-init="$nextTick(() => update())"
+                x-on:resize.window.debounce.150ms="update()"
+                class="relative mt-3"
+            >
+                <div
+                    x-ref="track"
+                    x-on:scroll.debounce.50ms="update()"
+                    class="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
                 @foreach ($categories as $category)
                     @php
                         $catImg = $category->image ? \Illuminate\Support\Facades\Storage::disk('public')->url($category->image) : null;
@@ -98,7 +122,7 @@
                     <a
                         href="{{ route('web.products', ['category' => $category->id]) }}"
                         wire:navigate
-                        class="group flex flex-col items-center gap-2 rounded-2xl border border-sand bg-white p-4 text-center transition hover:-translate-y-1 hover:border-brand/30 hover:shadow-md"
+                        class="group flex w-28 shrink-0 snap-start flex-col items-center gap-2 rounded-2xl border border-sand bg-white p-4 text-center transition hover:-translate-y-1 hover:border-brand/30 hover:shadow-md sm:w-36 lg:w-44"
                     >
                         <span class="flex size-16 items-center justify-center overflow-hidden rounded-full bg-blush">
                             @if ($catImg)
@@ -110,6 +134,15 @@
                         <span class="text-xs font-bold text-ink transition group-hover:text-brand">{{ $category->name }}</span>
                     </a>
                 @endforeach
+                </div>
+
+                {{-- Arrows --}}
+                <button type="button" x-show="! atStart" x-transition.opacity x-on:click="scroll(-1)" class="absolute -right-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white text-brand shadow-md transition hover:bg-blush active:scale-95 sm:flex" aria-label="السابق">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+                <button type="button" x-show="! atEnd" x-transition.opacity x-on:click="scroll(1)" class="absolute -left-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white text-brand shadow-md transition hover:bg-blush active:scale-95 sm:flex" aria-label="التالي">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
             </div>
         </section>
     @endif
