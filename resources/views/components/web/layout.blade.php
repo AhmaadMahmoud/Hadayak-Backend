@@ -85,15 +85,6 @@
                                     @endforeach
                                 </div>
 
-                                <a
-                                    href="{{ route('web.products') }}"
-                                    wire:navigate
-                                    x-on:click="open = false"
-                                    class="flex items-center justify-between bg-gradient-to-l from-brand to-brand-deep px-6 py-4 text-sm font-extrabold text-white transition hover:brightness-110"
-                                >
-                                    شوف كل المنتجات
-                                    <span class="text-lg">←</span>
-                                </a>
                             </div>
                         </div>
                     @endif
