@@ -44,6 +44,16 @@ class Product extends Model
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
     /** منتجات مشابهة من نفس القسم (لشاشة تفاصيل المنتج) */
     public function related(int $limit = 6)
     {
