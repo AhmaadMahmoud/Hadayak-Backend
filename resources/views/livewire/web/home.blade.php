@@ -1,27 +1,71 @@
 <div>
-    {{-- Hero --}}
-    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-bl from-brand to-brand-deep text-white">
-        <img src="{{ asset('images/web/gifts-bg.jpg') }}" alt="" aria-hidden="true" class="absolute inset-0 size-full object-cover opacity-15">
-        <div class="relative grid items-center gap-8 px-6 py-14 sm:px-12 md:grid-cols-2 md:py-20">
-            <div>
-                <h1 class="text-3xl font-extrabold leading-tight sm:text-5xl">فرحتك… هديتنا 🎁</h1>
-                <p class="mt-4 max-w-md text-base leading-relaxed text-white/85 sm:text-lg">
-                    اختار الهدية، اكتب كلماتك على بطاقة المعايدة، واحنا نغلفها ونوصلها لحد باب اللي بتحبهم — في أي مكان في مصر.
-                </p>
-                <div class="mt-7 flex flex-wrap gap-3">
-                    <a href="{{ route('web.products') }}" wire:navigate class="rounded-full bg-accent px-8 py-3.5 text-base font-extrabold text-brand-dark shadow-lg transition hover:brightness-105 active:scale-[0.98]">
-                        تسوق دلوقتي
+    @if ($banners->isNotEmpty())
+        {{-- Banners (بيتحكم فيها من الداشبورد) --}}
+        <section
+            x-data="{ active: 0, count: {{ $banners->count() }} }"
+            x-init="count > 1 && setInterval(() => active = (active + 1) % count, 5000)"
+            class="relative overflow-hidden rounded-3xl shadow-lg"
+        >
+            <div class="relative aspect-[16/9] sm:aspect-[5/2]">
+                @foreach ($banners as $banner)
+                    @php $bImg = \Illuminate\Support\Facades\Storage::disk('public')->url($banner->image); @endphp
+                    <a
+                        @if ($banner->link) href="{{ $banner->link }}" @else href="{{ route('web.products') }}" @endif
+                        x-show="active === {{ $loop->index }}"
+                        x-cloak
+                        x-transition:enter="transition ease-out duration-700"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in duration-500"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        class="absolute inset-0 block"
+                        wire:key="banner-{{ $banner->id }}"
+                    >
+                        <img src="{{ $bImg }}" alt="{{ $banner->name }}" @if(! $loop->first) loading="lazy" @endif class="size-full object-cover">
                     </a>
-                    <a href="{{ route('web.about') }}" wire:navigate class="rounded-full border-2 border-white/60 px-8 py-3.5 text-base font-bold text-white transition hover:bg-white/10">
-                        اعرف عننا
-                    </a>
+                @endforeach
+            </div>
+
+            @if ($banners->count() > 1)
+                <div class="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2" dir="ltr">
+                    @foreach ($banners as $banner)
+                        <button
+                            type="button"
+                            x-on:click="active = {{ $loop->index }}"
+                            class="h-2 rounded-full transition-all duration-300"
+                            :class="active === {{ $loop->index }} ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/80'"
+                            aria-label="بانر {{ $loop->iteration }}"
+                        ></button>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+    @else
+        {{-- Hero --}}
+        <section class="relative overflow-hidden rounded-3xl bg-gradient-to-bl from-brand to-brand-deep text-white">
+            <img src="{{ asset('images/web/gifts-bg.jpg') }}" alt="" aria-hidden="true" class="absolute inset-0 size-full object-cover opacity-15">
+            <div class="relative grid items-center gap-8 px-6 py-14 sm:px-12 md:grid-cols-2 md:py-20">
+                <div>
+                    <h1 class="text-3xl font-extrabold leading-tight sm:text-5xl">فرحتك… هديتنا 🎁</h1>
+                    <p class="mt-4 max-w-md text-base leading-relaxed text-white/85 sm:text-lg">
+                        اختار الهدية، اكتب كلماتك على بطاقة المعايدة، واحنا نغلفها ونوصلها لحد باب اللي بتحبهم — في أي مكان في مصر.
+                    </p>
+                    <div class="mt-7 flex flex-wrap gap-3">
+                        <a href="{{ route('web.products') }}" wire:navigate class="rounded-full bg-accent px-8 py-3.5 text-base font-extrabold text-brand-dark shadow-lg transition hover:brightness-105 active:scale-[0.98]">
+                            تسوق دلوقتي
+                        </a>
+                        <a href="{{ route('web.about') }}" wire:navigate class="rounded-full border-2 border-white/60 px-8 py-3.5 text-base font-bold text-white transition hover:bg-white/10">
+                            اعرف عننا
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden justify-center md:flex">
+                    <img src="{{ asset('images/web/hero-banner.jpg') }}" alt="هدايا هداياك" class="max-h-72 w-full rounded-2xl object-cover shadow-2xl">
                 </div>
             </div>
-            <div class="hidden justify-center md:flex">
-                <img src="{{ asset('images/web/hero-banner.jpg') }}" alt="هدايا هداياك" class="max-h-72 w-full rounded-2xl object-cover shadow-2xl">
-            </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
     {{-- Highlights strip --}}
     <section class="mt-8 grid gap-4 sm:grid-cols-3">

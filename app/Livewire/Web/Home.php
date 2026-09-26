@@ -40,6 +40,7 @@ class Home extends Component
     public function render()
     {
         return view('livewire.web.home', [
+            'banners' => \App\Models\Banner::where('is_active', true)->orderBy('sort_order')->get(),
             'categories' => Category::where('is_active', true)->orderBy('sort_order')->get(),
             'featured' => Product::where('is_active', true)->with('images')->orderBy('sort_order')->take(8)->get(),
             'services' => Service::where('is_active', true)->orderBy('sort_order')->get(),
