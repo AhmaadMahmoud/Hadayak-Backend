@@ -47,3 +47,6 @@
     animation: cart-nudge 3.5s ease-in-out infinite;
     transform-origin: top center;
 }
+
+/* Alpine: إخفاء العناصر لحد ما يجهز */
+[x-cloak] { display: none !important; }

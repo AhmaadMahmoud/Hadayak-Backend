@@ -27,7 +27,77 @@
             {{-- Nav (desktop) --}}
             <nav class="hidden items-center gap-6 text-sm font-bold text-mocha md:flex">
                 <a href="{{ route('web.home') }}" wire:navigate class="transition hover:text-brand {{ request()->routeIs('web.home') ? 'text-brand' : '' }}">الرئيسية</a>
-                <a href="{{ route('web.products') }}" wire:navigate class="transition hover:text-brand {{ request()->routeIs('web.products') ? 'text-brand' : '' }}">المنتجات</a>
+                @php
+                    $navCategories = \Illuminate\Support\Facades\Cache::remember(
+                        'nav_categories_v2', 300,
+                        fn () => \App\Models\Category::where('is_active', true)
+                            ->orderBy('sort_order')
+                            ->get(['id', 'name', 'image'])
+                            ->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'image' => $c->image])
+                            ->all()
+                    );
+                @endphp
+                <div class="relative" x-data="{ open: false }" x-on:mouseenter="open = true" x-on:mouseleave="open = false">
+                    <a
+                        href="{{ route('web.products') }}"
+                        wire:navigate
+                        class="flex items-center gap-1.5 transition hover:text-brand {{ request()->routeIs('web.products') ? 'text-brand' : '' }}"
+                    >
+                        المنتجات
+                        <svg class="size-3.5 transition duration-200" :class="open && 'rotate-180 text-brand'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </a>
+
+                    @if (count($navCategories))
+                        <div
+                            x-show="open"
+                            x-cloak
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 -translate-y-2"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0 -translate-y-2"
+                            class="absolute right-0 top-full z-50 w-[580px] pt-4"
+                        >
+                            <div class="overflow-hidden rounded-3xl border border-sand bg-white shadow-2xl">
+                                <p class="px-6 pb-1 pt-5 text-xs font-extrabold text-mocha/60">تسوق حسب القسم 🎁</p>
+
+                                <div class="grid grid-cols-3 gap-1 p-4">
+                                    @foreach ($navCategories as $navCat)
+                                        @php
+                                            $navImg = $navCat['image'] ? \Illuminate\Support\Facades\Storage::disk('public')->url($navCat['image']) : null;
+                                        @endphp
+                                        <a
+                                            href="{{ route('web.products', ['category' => $navCat['id']]) }}"
+                                            wire:navigate
+                                            x-on:click="open = false"
+                                            class="group/cat flex items-center gap-3 rounded-2xl p-2.5 transition hover:bg-blush"
+                                        >
+                                            <span class="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-cream ring-2 ring-sand transition group-hover/cat:ring-brand/40">
+                                                @if ($navImg)
+                                                    <img src="{{ $navImg }}" alt="" loading="lazy" class="size-full object-cover">
+                                                @else
+                                                    <span class="text-lg">🎁</span>
+                                                @endif
+                                            </span>
+                                            <span class="min-w-0 truncate text-sm font-bold text-ink transition group-hover/cat:text-brand">{{ $navCat['name'] }}</span>
+                                        </a>
+                                    @endforeach
+                                </div>
+
+                                <a
+                                    href="{{ route('web.products') }}"
+                                    wire:navigate
+                                    x-on:click="open = false"
+                                    class="flex items-center justify-between bg-gradient-to-l from-brand to-brand-deep px-6 py-4 text-sm font-extrabold text-white transition hover:brightness-110"
+                                >
+                                    شوف كل المنتجات
+                                    <span class="text-lg">←</span>
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+                </div>
                 <a href="{{ route('web.about') }}" wire:navigate class="transition hover:text-brand {{ request()->routeIs('web.about') ? 'text-brand' : '' }}">عن هداياك</a>
                 <a href="{{ route('web.contact') }}" wire:navigate class="transition hover:text-brand {{ request()->routeIs('web.contact') ? 'text-brand' : '' }}">تواصل معنا</a>
             </nav>
