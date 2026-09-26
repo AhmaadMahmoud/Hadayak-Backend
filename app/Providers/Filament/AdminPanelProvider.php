@@ -33,6 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(fn () => asset('images/logo-red.png'))
             ->darkModeBrandLogo(fn () => asset('images/logo-white.png'))
             ->brandLogoHeight('2.75rem')
+            ->favicon(asset('images/logo-red.png'))
             ->font('Cairo')
             ->colors([
                 'primary' => Color::hex('#D81D35'), // أحمر هداياك
