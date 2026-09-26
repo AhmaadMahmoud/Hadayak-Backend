@@ -127,5 +127,6 @@
             © {{ now()->year }} هداياك — صنع بحب في مصر ❤️
         </div>
     </footer>
+    <x-web.cart-toast />
 </body>
 </html>

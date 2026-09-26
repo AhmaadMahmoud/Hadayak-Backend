@@ -57,6 +57,13 @@ class Products extends Component
             );
             \App\Support\Track::event('add_to_cart', $product->name, ['product_id' => $product->id]);
             $this->dispatch('cart-updated');
+            $this->dispatch('cart-added',
+                name: $product->name,
+                price: (float) $product->price,
+                qty: 1,
+                image: WebCart::items()[$product->id]['image'] ?? null,
+                count: WebCart::count(),
+            );
         }
     }
 

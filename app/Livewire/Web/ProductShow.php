@@ -54,8 +54,15 @@ class ProductShow extends Component
         );
 
         \App\Support\Track::event('add_to_cart', $product->name, ['product_id' => $product->id]);
-        $this->qty = 1;
         $this->dispatch('cart-updated');
+        $this->dispatch('cart-added',
+            name: $product->name,
+            price: (float) $product->price,
+            qty: $productId ? 1 : $this->qty,
+            image: WebCart::items()[$product->id]['image'] ?? null,
+            count: WebCart::count(),
+        );
+        $this->qty = 1;
     }
 
     #[Layout('components.web.layout', ['title' => 'تفاصيل المنتج'])]
