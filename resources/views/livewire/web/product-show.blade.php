@@ -112,6 +112,13 @@
                 {{ number_format($product->price) }} <span class="text-base font-bold text-mocha">ج.م</span>
             </p>
 
+            @if ($reviewsCount > 0)
+                <a href="#reviews" class="mt-2 inline-flex items-center gap-2 text-sm font-bold text-mocha hover:text-brand">
+                    <span class="text-accent">{{ str_repeat('★', (int) round($avgRating)) }}{{ str_repeat('☆', 5 - (int) round($avgRating)) }}</span>
+                    {{ $avgRating }} من 5 · {{ $reviewsCount }} تقييم
+                </a>
+            @endif
+
             @if ($product->description)
                 <p class="mt-5 max-w-prose text-base leading-relaxed text-mocha">{{ $product->description }}</p>
             @endif
@@ -166,4 +173,90 @@
             </div>
         </section>
     @endif
+
+    {{-- Reviews --}}
+    <section id="reviews" class="mt-14">
+        <div class="flex flex-wrap items-center gap-4">
+            <h2 class="text-2xl font-extrabold text-ink">التقييمات</h2>
+            @if ($reviewsCount > 0)
+                <span class="rounded-full bg-blush px-4 py-1.5 text-sm font-extrabold text-brand">
+                    <span class="text-accent">★</span> {{ $avgRating }} من 5 · {{ $reviewsCount }} تقييم
+                </span>
+            @endif
+        </div>
+
+        {{-- فورم التقييم --}}
+        @if ($canReview)
+            <div class="mt-5 rounded-3xl border border-sand bg-white p-6">
+                <p class="text-sm font-extrabold text-ink">قيّم المنتج دا ✍️</p>
+
+                <div class="mt-4 flex items-center gap-1" x-data="{ r: $wire.entangle('myRating'), h: 0 }" dir="ltr">
+                    <template x-for="n in 5" :key="n">
+                        <button
+                            type="button"
+                            x-on:click="r = n"
+                            x-on:mouseenter="h = n"
+                            x-on:mouseleave="h = 0"
+                            class="text-3xl transition"
+                            :class="(h ? n <= h : n <= r) ? 'text-accent scale-110' : 'text-sand'"
+                        >★</button>
+                    </template>
+                </div>
+
+                <textarea
+                    wire:model="reviewComment"
+                    rows="3"
+                    maxlength="1000"
+                    placeholder="احكيلنا تجربتك مع المنتج… (اختياري)"
+                    class="mt-4 w-full rounded-2xl border border-sand bg-cream p-4 text-sm font-bold text-ink placeholder:text-mocha/50 focus:border-brand focus:outline-none"
+                ></textarea>
+
+                @error('myRating')
+                    <p class="mt-2 text-sm font-bold text-brand">{{ $message }}</p>
+                @enderror
+
+                <button
+                    type="button"
+                    wire:click="submitReview"
+                    wire:loading.attr="disabled"
+                    class="mt-4 rounded-full bg-brand px-8 py-3 text-sm font-extrabold text-white shadow-lg transition hover:bg-brand-dark disabled:opacity-60"
+                >
+                    <span wire:loading.remove wire:target="submitReview">انشر تقييمك</span>
+                    <span wire:loading wire:target="submitReview">ثواني…</span>
+                </button>
+            </div>
+        @elseif ($alreadyReviewed)
+            <p class="mt-5 rounded-2xl bg-[#E8F5E9] p-4 text-sm font-bold text-[#2E7D32]">شكرًا! تقييمك للمنتج دا متسجل عندنا ✓</p>
+        @elseif (auth()->check())
+            <p class="mt-5 rounded-2xl bg-cream p-4 text-sm font-bold text-mocha">التقييم متاح للعملاء اللي اشتروا المنتج دا — اطلبه وجرّبه وارجع قولنا رأيك 🎁</p>
+        @else
+            <p class="mt-5 rounded-2xl bg-cream p-4 text-sm font-bold text-mocha">
+                <a href="{{ route('web.login') }}" wire:navigate class="text-brand hover:underline">سجل دخولك</a>
+                — التقييم متاح للعملاء اللي اشتروا المنتج فقط، عشان كل التقييمات هنا حقيقية 100%
+            </p>
+        @endif
+
+        {{-- قائمة التقييمات --}}
+        @if ($reviews->isNotEmpty())
+            <div class="mt-5 space-y-3">
+                @foreach ($reviews as $review)
+                    <div class="rounded-2xl border border-sand bg-white p-5" wire:key="review-{{ $review->id }}">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="flex size-9 items-center justify-center rounded-full bg-blush text-sm font-extrabold text-brand">
+                                {{ mb_substr($review->user->name ?? 'ع', 0, 1) }}
+                            </span>
+                            <span class="text-sm font-extrabold text-ink">{{ $review->user->name ?? 'عميل هداياك' }}</span>
+                            <span class="mr-auto text-xs text-mocha/60">{{ $review->created_at->diffForHumans() }}</span>
+                        </div>
+                        <p class="mt-2 text-accent" dir="ltr" style="text-align: right;">{{ str_repeat('★', $review->rating) }}<span class="text-sand">{{ str_repeat('★', 5 - $review->rating) }}</span></p>
+                        @if ($review->comment)
+                            <p class="mt-2 text-sm leading-relaxed text-mocha">{{ $review->comment }}</p>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @elseif ($reviewsCount === 0)
+            <p class="mt-5 text-sm text-mocha/60">لسه مفيش تقييمات — كن أول من يقيّم المنتج دا</p>
+        @endif
+    </section>
 </div>

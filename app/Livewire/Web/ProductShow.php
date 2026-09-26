@@ -3,6 +3,7 @@
 namespace App\Livewire\Web;
 
 use App\Models\Product;
+use App\Models\Review;
 use App\Services\WebCart;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
@@ -15,10 +16,55 @@ class ProductShow extends Component
 
     public int $qty = 1;
 
+    // التقييمات
+    public int $myRating = 0;
+
+    public string $reviewComment = '';
+
+    public bool $canReview = false;
+
+    public bool $alreadyReviewed = false;
+
     public function mount(Product $product): void
     {
         abort_unless($product->is_active, 404);
         $this->product = $product->load('images', 'category');
+
+        if ($userId = \Illuminate\Support\Facades\Auth::id()) {
+            $this->alreadyReviewed = Review::where('product_id', $product->id)->where('user_id', $userId)->exists();
+            $this->canReview = ! $this->alreadyReviewed && Review::userBoughtProduct($userId, $product->id);
+        }
+    }
+
+    public function submitReview(): void
+    {
+        $userId = \Illuminate\Support\Facades\Auth::id();
+
+        // حماية من السيرفر: مشتري فعلي + مقيمش قبل كدا
+        if (! $userId
+            || Review::where('product_id', $this->product->id)->where('user_id', $userId)->exists()
+            || ! Review::userBoughtProduct($userId, $this->product->id)) {
+            return;
+        }
+
+        $this->validate(
+            [
+                'myRating' => 'required|integer|min:1|max:5',
+                'reviewComment' => 'nullable|string|max:1000',
+            ],
+            ['myRating.min' => 'اختار عدد النجوم الأول ⭐'],
+        );
+
+        Review::create([
+            'product_id' => $this->product->id,
+            'user_id' => $userId,
+            'rating' => $this->myRating,
+            'comment' => trim($this->reviewComment) ?: null,
+        ]);
+
+        $this->alreadyReviewed = true;
+        $this->canReview = false;
+        \App\Support\Track::event('review', $this->product->name, ['rating' => $this->myRating]);
     }
 
     public function incrementQty(): void
@@ -69,8 +115,13 @@ class ProductShow extends Component
     #[Title('هداياك')]
     public function render()
     {
+        $reviews = $this->product->approvedReviews()->with('user:id,name')->latest()->take(20)->get();
+
         return view('livewire.web.product-show', [
             'related' => $this->product->related()->with('images')->take(4)->get(),
+            'reviews' => $reviews,
+            'avgRating' => round((float) $this->product->approvedReviews()->avg('rating'), 1),
+            'reviewsCount' => $this->product->approvedReviews()->count(),
         ]);
     }
 }
