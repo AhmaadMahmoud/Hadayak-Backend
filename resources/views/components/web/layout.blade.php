@@ -1,4 +1,4 @@
-@props(['title' => 'هداياك'])
+@props(['title' => 'هداياك', 'description' => 'هداياك — متجر الهدايا الأول في مصر: اختار الهدية، غلفها ببطاقة معايدة بكلماتك، ووصلها لحد باب اللي بتحبهم في كل المحافظات.'])
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -6,11 +6,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title }} — هداياك</title>
+    <meta name="description" content="{{ $description }}">
     <link rel="icon" href="{{ asset('images/logo-red.png') }}" type="image/png">
     <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-cream font-sans text-ink antialiased">
@@ -20,7 +18,7 @@
         <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
             {{-- Logo --}}
             <a href="{{ route('web.home') }}" wire:navigate class="flex shrink-0 items-center gap-2">
-                <img src="{{ asset('images/logo-red.png') }}" alt="هداياك" class="h-9 w-auto">
+                <img src="{{ asset('images/logo-red.png') }}" alt="هداياك" width="39" height="36" class="h-9 w-auto">
                 <span class="hidden text-xl font-extrabold text-brand sm:block">هداياك</span>
             </a>
 
@@ -29,8 +27,9 @@
                 <a href="{{ route('web.home') }}" wire:navigate class="transition hover:text-brand {{ request()->routeIs('web.home') ? 'text-brand' : '' }}">الرئيسية</a>
                 @php
                     $navCategories = \Illuminate\Support\Facades\Cache::remember(
-                        'nav_categories_v2', 300,
+                        'nav_categories_v3', 300,
                         fn () => \App\Models\Category::where('is_active', true)
+                            ->whereHas('products', fn ($q) => $q->where('is_active', true))
                             ->orderBy('sort_order')
                             ->get(['id', 'name', 'image'])
                             ->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'image' => $c->image])
@@ -155,12 +154,36 @@
         <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
             <div>
                 <div class="flex items-center gap-2">
-                    <img src="{{ asset('images/logo-white.png') }}" alt="هداياك" class="h-10 w-auto">
+                    <img src="{{ asset('images/logo-white.png') }}" alt="هداياك" width="43" height="40" class="h-10 w-auto">
                     <span class="text-2xl font-extrabold">هداياك</span>
                 </div>
                 <p class="mt-3 max-w-xs text-sm leading-relaxed text-white/80">
                     متجرك المتكامل للهدايا في مصر — نختار، نغلّف، ونوصّل الفرحة لحد الباب. 🎁
                 </p>
+
+                @php
+                    $socials = array_filter([
+                        'facebook' => \App\Models\Setting::get('social_facebook', ''),
+                        'instagram' => \App\Models\Setting::get('social_instagram', ''),
+                        'tiktok' => \App\Models\Setting::get('social_tiktok', ''),
+                    ]);
+                @endphp
+                @if (count($socials))
+                    <div class="mt-4 flex gap-3">
+                        @foreach ($socials as $network => $url)
+                            <a href="{{ $url }}" target="_blank" rel="noopener" aria-label="{{ $network }}"
+                               class="flex size-9 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/25">
+                                @if ($network === 'facebook')
+                                    <svg class="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14C17.17 2.1 15.95 2 14.66 2 11.97 2 10 3.66 10 6.7v2.8H7v4h3V22h4v-8.5Z"/></svg>
+                                @elseif ($network === 'instagram')
+                                    <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.8" cy="6.2" r="1.3" fill="currentColor" stroke="none"/></svg>
+                                @else
+                                    <svg class="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M19.6 6.9a4.8 4.8 0 0 1-3.8-4.4V2h-3.3v13.7a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .9.1V9.5a6.2 6.2 0 1 0 5.3 6.2V8.6a8 8 0 0 0 4.7 1.5V6.9h-.9Z"/></svg>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
             <div>
                 <p class="text-sm font-extrabold text-accent">روابط سريعة</p>
@@ -168,6 +191,7 @@
                     <a href="{{ route('web.products') }}" wire:navigate class="transition hover:text-white">المنتجات</a>
                     <a href="{{ route('web.about') }}" wire:navigate class="transition hover:text-white">عن هداياك</a>
                     <a href="{{ route('web.contact') }}" wire:navigate class="transition hover:text-white">تواصل معنا</a>
+                    <a href="{{ route('web.returns') }}" wire:navigate class="transition hover:text-white">الاستبدال والإرجاع</a>
                     <a href="{{ route('web.privacy') }}" wire:navigate class="transition hover:text-white">سياسة الخصوصية</a>
                 </nav>
             </div>

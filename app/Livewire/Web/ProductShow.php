@@ -117,11 +117,16 @@ class ProductShow extends Component
     {
         $reviews = $this->product->approvedReviews()->with('user:id,name')->latest()->take(20)->get();
 
+        $minShipping = \App\Models\Governorate::where('is_active', true)->min('shipping_fee');
+        $deliverySummary = \App\Models\Setting::get('delivery_summary', '١–٣ أيام عمل للقاهرة والجيزة، و٣–٥ أيام لباقي المحافظات');
+
         return view('livewire.web.product-show', [
             'related' => $this->product->related()->with('images')->take(4)->get(),
             'reviews' => $reviews,
             'avgRating' => round((float) $this->product->approvedReviews()->avg('rating'), 1),
             'reviewsCount' => $this->product->approvedReviews()->count(),
+            'minShipping' => $minShipping !== null ? (float) $minShipping : null,
+            'deliverySummary' => $deliverySummary,
         ]);
     }
 }

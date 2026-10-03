@@ -118,7 +118,7 @@
     <div style="font-size:13px;font-weight:700;color:#D81D35;">هداياك — جهز الهدية وانت في مكانك 🎁</div>
     <div style="font-size:11px;color:#A8A3A3;margin-top:8px;line-height:1.8;">
       وصلك الإيميل دا لأنك عملت طلب على تطبيق هداياك<br>
-      لأي استفسار كلمنا على support@hadayak.com
+      لأي استفسار كلمنا على info@hdayak.com
     </div>
   </td></tr>
 

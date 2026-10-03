@@ -31,7 +31,7 @@
 
             <section>
                 <h2 class="text-lg font-extrabold text-brand">تواصل معنا</h2>
-                <p class="mt-2 text-sm">لأي سؤال عن خصوصيتك راسلنا على <a href="mailto:support@hadayak.com" class="font-bold text-brand hover:underline">support@hadayak.com</a> أو من صفحة <a href="{{ route('web.contact') }}" class="font-bold text-brand hover:underline">تواصل معنا</a>.</p>
+                <p class="mt-2 text-sm">لأي سؤال عن خصوصيتك راسلنا على <a href="mailto:info@hdayak.com" class="font-bold text-brand hover:underline">info@hdayak.com</a> أو من صفحة <a href="{{ route('web.contact') }}" class="font-bold text-brand hover:underline">تواصل معنا</a>.</p>
             </section>
         </div>
     </div>

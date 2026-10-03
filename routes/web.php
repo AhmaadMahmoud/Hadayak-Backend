@@ -42,3 +42,4 @@ Route::get('/orders/{order}', OrderShow::class)->name('web.order');
 Route::view('/about', 'pages.about')->name('web.about');
 Route::view('/contact', 'pages.contact')->name('web.contact');
 Route::view('/privacy', 'pages.privacy')->name('web.privacy');
+Route::view('/returns', 'pages.returns')->name('web.returns');

@@ -51,6 +51,13 @@ class BannerResource extends Resource
                 ->directory('banners')
                 ->imageEditor()
                 ->required(),
+            FileUpload::make('mobile_image')
+                ->label('صورة الموبايل (اختياري)')
+                ->helperText('نسخة مخصوصة للموبايل بمقاس 1080 × 900 تقريبًا — لو سبتها فاضية هنعرض الصورة الأساسية')
+                ->image()
+                ->disk('public')
+                ->directory('banners')
+                ->imageEditor(),
             TextInput::make('link')
                 ->label('اللينك عند الضغط')
                 ->placeholder('مثال: /products?category=3 أو https://...')

@@ -153,6 +153,18 @@
                 </div>
             @endif
 
+            {{-- Delivery & policy --}}
+            <div class="mt-6 space-y-2 rounded-2xl border border-sand bg-white p-4 text-sm">
+                <p class="flex items-start gap-2 text-mocha">
+                    <span aria-hidden="true">🚚</span>
+                    <span>التوصيل خلال <b class="text-ink">{{ $deliverySummary }}</b>@if ($minShipping !== null) · رسوم الشحن تبدأ من <b class="text-ink">{{ number_format($minShipping) }} ج.م</b> حسب المحافظة @endif</span>
+                </p>
+                <p class="flex items-start gap-2 text-mocha">
+                    <span aria-hidden="true">↩️</span>
+                    <span>استبدال مجاني للمنتج التالف خلال 48 ساعة، وإرجاع خلال 14 يوم — <a href="{{ route('web.returns') }}" wire:navigate class="font-bold text-brand hover:underline">اقرأ السياسة كاملة</a></span>
+                </p>
+            </div>
+
             {{-- Trust points --}}
             <div class="mt-8 grid grid-cols-3 gap-3 text-center">
                 <div class="rounded-2xl bg-blush p-3"><span class="text-xl">🎀</span><p class="mt-1 text-[11px] font-bold text-ink">تغليف هدايا</p></div>

@@ -24,6 +24,7 @@ class AddressController extends Controller
     {
         $data = $request->validate([
             'label' => ['required', 'in:home,office,other'],
+            'governorate_id' => ['nullable', 'exists:governorates,id'],
             'area' => ['required', 'string', 'max:255'],
             'street' => ['required', 'string', 'max:255'],
             'building' => ['nullable', 'string', 'max:50'],
@@ -53,6 +54,7 @@ class AddressController extends Controller
 
         $data = $request->validate([
             'label' => ['required', 'in:home,office,other'],
+            'governorate_id' => ['nullable', 'exists:governorates,id'],
             'area' => ['required', 'string', 'max:255'],
             'street' => ['required', 'string', 'max:255'],
             'building' => ['nullable', 'string', 'max:50'],
@@ -87,6 +89,10 @@ class AddressController extends Controller
         return [
             'id' => $a->id,
             'label' => $a->label,
+            'governorate_id' => $a->governorate_id,
+            'governorate' => $a->governorate?->name,
+            'shipping_fee' => $a->shippingFee(),
+            'delivery_days' => $a->governorate?->delivery_days,
             'area' => $a->area,
             'street' => $a->street,
             'building' => $a->building,

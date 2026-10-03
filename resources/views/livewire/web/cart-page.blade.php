@@ -126,10 +126,10 @@
                     @if ($cardPrice > 0)
                         <div class="flex justify-between text-mocha"><span>بطاقة المعايدة</span><span>{{ number_format($cardPrice) }} ج.م</span></div>
                     @endif
-                    <div class="flex justify-between text-mocha"><span>التوصيل</span><span>{{ number_format($deliveryFee) }} ج.م</span></div>
+                    <div class="flex justify-between text-mocha"><span>التوصيل</span><span class="text-xs">بيتحدد حسب محافظتك</span></div>
                     <div class="flex justify-between border-t border-sand pt-3 text-base font-extrabold text-ink">
                         <span>الإجمالي</span>
-                        <span class="text-brand">{{ number_format($itemsTotal + $wrapPrice + $cardPrice + $deliveryFee) }} ج.م</span>
+                        <span class="text-brand">{{ number_format($itemsTotal + $wrapPrice + $cardPrice) }} ج.م <span class="text-xs font-bold text-mocha">+ الشحن</span></span>
                     </div>
                 </div>
 
