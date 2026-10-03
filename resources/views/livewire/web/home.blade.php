@@ -8,7 +8,7 @@
             x-init="count > 1 && setInterval(() => active = (active + 1) % count, 5000)"
             class="relative overflow-hidden rounded-3xl shadow-lg"
         >
-            <div class="relative aspect-[16/9] sm:aspect-[5/2]">
+            <div class="relative aspect-[6/5] sm:aspect-[5/2]">
                 @foreach ($banners as $banner)
                     @php
                         $bImg = \Illuminate\Support\Facades\Storage::disk('public')->url($banner->image);
