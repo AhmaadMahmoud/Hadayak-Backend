@@ -1,7 +1,7 @@
 <div>
     <h1 class="text-3xl font-extrabold text-ink">إتمام الطلب</h1>
 
-    <div class="mt-6 grid gap-8 lg:grid-cols-3">
+    <div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div class="space-y-6 lg:col-span-2">
             {{-- Guest contact info --}}
             @guest

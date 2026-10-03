@@ -151,7 +151,7 @@
 
     {{-- Footer --}}
     <footer class="mt-12 bg-gradient-to-bl from-brand to-brand-deep text-white">
-        <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
+        <div class="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
             <div>
                 <div class="flex items-center gap-2">
                     <img src="{{ asset('images/logo-white.png') }}" alt="هداياك" width="43" height="40" class="h-10 w-auto">

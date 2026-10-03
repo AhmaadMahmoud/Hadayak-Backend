@@ -22,7 +22,7 @@
         <h1 class="mt-4 text-3xl font-extrabold text-ink">{{ $service->name }} ✨</h1>
         <p class="mt-1 text-sm text-mocha">ارفع صورتك وشوفها على المنتج قبل ما تطلب — واكتبلنا أي تفاصيل في دماغك</p>
 
-        <div class="mt-8 grid gap-8 lg:grid-cols-2" x-data="{ url: null }">
+        <div class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2" x-data="{ url: null }">
             {{-- ===== المعاينة الحية ===== --}}
             <div class="flex flex-col items-center justify-center rounded-3xl bg-blush p-6 sm:p-10">
                 @if ($template === 'mug')

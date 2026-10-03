@@ -13,7 +13,7 @@
         <span class="text-ink">{{ $product->name }}</span>
     </nav>
 
-    <div class="mt-6 grid gap-8 lg:grid-cols-2">
+    <div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
         {{-- Gallery --}}
         <div
             x-data="{
