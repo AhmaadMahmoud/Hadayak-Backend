@@ -26,7 +26,9 @@ class PlaceOrder
     public static function handle(User $user, array $data): Order
     {
         // العنوان لازم يكون بتاع نفس المستخدم
-        if (! $user->addresses()->whereKey($data['address_id'])->exists()) {
+        $address = $user->addresses()->whereKey($data['address_id'])->first();
+
+        if (! $address) {
             throw ValidationException::withMessages(['address_id' => 'العنوان غير صحيح']);
         }
 
@@ -35,7 +37,7 @@ class PlaceOrder
             throw ValidationException::withMessages(['payment_method' => 'الدفع عند الاستلام غير متاح لهذا الطلب']);
         }
 
-        $order = DB::transaction(function () use ($data, $user) {
+        $order = DB::transaction(function () use ($data, $user, $address) {
             $wrap = isset($data['wrap_option_id']) ? WrapOption::find($data['wrap_option_id']) : null;
             $card = isset($data['card_design_id']) ? CardDesign::find($data['card_design_id']) : null;
 
@@ -50,7 +52,7 @@ class PlaceOrder
                 'card_price' => $card?->price ?? 0,
                 'card_message' => $data['card_message'] ?? null,
                 'payment_method' => $data['payment_method'],
-                'delivery_fee' => (float) Setting::get('delivery_fee', 50),
+                'delivery_fee' => $address->shippingFee(),
             ]);
 
             foreach ($data['items'] as $item) {

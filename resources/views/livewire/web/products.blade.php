@@ -2,6 +2,18 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-3xl font-extrabold text-ink">المنتجات</h1>
 
+        <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+        {{-- Sort --}}
+        <select
+            wire:model.live="sort"
+            class="rounded-full border border-sand bg-white px-4 py-3 text-sm font-bold text-mocha focus:border-brand focus:outline-none"
+        >
+            <option value="default">الترتيب المقترح</option>
+            <option value="newest">الأحدث</option>
+            <option value="price_asc">السعر: من الأقل للأعلى</option>
+            <option value="price_desc">السعر: من الأعلى للأقل</option>
+        </select>
+
         {{-- Search --}}
         <div class="relative w-full sm:w-80">
             <input
@@ -11,6 +23,7 @@
                 class="w-full rounded-full border border-sand bg-white py-3 pr-11 pl-4 text-sm font-bold text-ink placeholder:text-mocha/50 focus:border-brand focus:outline-none"
             >
             <svg class="absolute right-4 top-1/2 size-4 -translate-y-1/2 text-mocha/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+        </div>
         </div>
     </div>
 
@@ -35,6 +48,23 @@
                     'border border-sand bg-white text-mocha hover:border-brand/40' => $categoryId !== $category->id,
                 ])
             >{{ $category->name }}</button>
+        @endforeach
+    </div>
+
+    {{-- Budget chips --}}
+    <div class="flex items-center gap-2 overflow-x-auto pb-2" style="scrollbar-width: none;">
+        <span class="shrink-0 text-xs font-extrabold text-mocha/60">الميزانية:</span>
+        @foreach (\App\Livewire\Web\Products::BUDGETS as $key => [$label, $min, $max])
+            <button
+                type="button"
+                wire:click="selectBudget('{{ $key }}')"
+                wire:key="budget-{{ $key }}"
+                @class([
+                    'shrink-0 rounded-full px-4 py-1.5 text-xs font-bold transition',
+                    'bg-accent text-brand-dark' => $budget === $key,
+                    'border border-sand bg-white text-mocha hover:border-accent' => $budget !== $key,
+                ])
+            >{{ $label }} ج.م</button>
         @endforeach
     </div>
 

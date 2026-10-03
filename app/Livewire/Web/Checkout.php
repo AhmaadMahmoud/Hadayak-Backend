@@ -25,6 +25,8 @@ class Checkout extends Component
     public bool $showNewAddress = false;
 
     // عنوان جديد
+    public ?int $governorateId = null;
+
     public string $area = '';
 
     public string $street = '';
@@ -143,12 +145,13 @@ class Checkout extends Component
         // عنوان جديد لو مفيش عنوان مختار
         if ($this->showNewAddress || ! $this->addressId) {
             $this->validate(
-                ['area' => 'required', 'street' => 'required'],
-                ['area.required' => 'اكتب المنطقة', 'street.required' => 'اكتب الشارع'],
+                ['governorateId' => 'required|exists:governorates,id', 'area' => 'required', 'street' => 'required'],
+                ['governorateId.required' => 'اختار المحافظة عشان نحسب الشحن', 'area.required' => 'اكتب المنطقة', 'street.required' => 'اكتب الشارع'],
             );
 
             $address = $user->addresses()->create([
                 'label' => 'home',
+                'governorate_id' => $this->governorateId,
                 'area' => $this->area,
                 'street' => $this->street,
                 'building' => $this->building ?: null,
@@ -208,13 +211,24 @@ class Checkout extends Component
     #[Title('إتمام الطلب — هداياك')]
     public function render()
     {
+        // المحافظة المختارة: من العنوان المحفوظ أو من اختيار العنوان الجديد
+        $selectedGov = null;
+
+        if ($this->showNewAddress || ! $this->addressId) {
+            $selectedGov = $this->governorateId ? \App\Models\Governorate::find($this->governorateId) : null;
+        } else {
+            $selectedGov = Auth::user()?->addresses()->find($this->addressId)?->governorate;
+        }
+
         return view('livewire.web.checkout', [
-            'addresses' => Auth::user()?->addresses()->orderByDesc('is_default')->latest()->get() ?? collect(),
+            'addresses' => Auth::user()?->addresses()->with('governorate')->orderByDesc('is_default')->latest()->get() ?? collect(),
+            'governorates' => \App\Models\Governorate::where('is_active', true)->orderBy('sort_order')->get(['id', 'name', 'shipping_fee', 'delivery_days']),
             'items' => WebCart::items(),
             'itemsTotal' => WebCart::itemsTotal(),
             'wrapPrice' => WebCart::wrapPrice(),
             'cardPrice' => WebCart::cardPrice(),
-            'deliveryFee' => (float) Setting::get('delivery_fee', 50),
+            'deliveryFee' => $selectedGov ? (float) $selectedGov->shipping_fee : null,
+            'deliveryDays' => $selectedGov?->delivery_days,
             'codEnabled' => (bool) (int) Setting::get('cod_enabled', 0),
         ]);
     }

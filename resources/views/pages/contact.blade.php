@@ -2,7 +2,7 @@
     @php
         $phone = \App\Models\Setting::get('support_phone', '');
         $whatsapp = preg_replace('/\D/', '', \App\Models\Setting::get('support_whatsapp', ''));
-        $email = \App\Models\Setting::get('support_email', 'support@hadayak.com');
+        $email = \App\Models\Setting::get('support_email', 'info@hdayak.com');
         $service = request('service');
         $waText = rawurlencode($service ? 'أهلًا هداياك 🎁 عايز أطلب خدمة: '.$service : 'أهلًا هداياك 🎁');
     @endphp

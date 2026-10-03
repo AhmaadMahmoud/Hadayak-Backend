@@ -97,7 +97,7 @@
                                         {{ ['home' => 'المنزل', 'office' => 'المكتب'][$address->label] ?? 'عنوان' }}
                                         @if ($address->is_default) <span class="text-xs text-accent">⭐</span> @endif
                                     </span>
-                                    <span class="block truncate text-xs text-mocha">{{ $address->area }} — {{ $address->street }}</span>
+                                    <span class="block truncate text-xs text-mocha">{{ $address->governorate ? $address->governorate->name.' — ' : '' }}{{ $address->area }} — {{ $address->street }}</span>
                                 </span>
                             </button>
                         @endforeach
@@ -110,6 +110,15 @@
 
                 @if ($showNewAddress)
                     <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                        <select
+                            wire:model.live="governorateId"
+                            class="w-full rounded-2xl border border-sand bg-cream px-5 py-3 text-sm font-bold text-ink focus:border-brand focus:outline-none sm:col-span-2"
+                        >
+                            <option value="">اختار المحافظة…</option>
+                            @foreach ($governorates as $gov)
+                                <option value="{{ $gov->id }}">{{ $gov->name }} — شحن {{ number_format($gov->shipping_fee) }} ج.م ({{ $gov->delivery_days }})</option>
+                            @endforeach
+                        </select>
                         <input type="text" wire:model="area" placeholder="المنطقة / المدينة"
                             class="w-full rounded-2xl border border-sand bg-cream px-5 py-3 text-sm font-bold text-ink placeholder:text-mocha/50 focus:border-brand focus:outline-none">
                         <input type="text" wire:model="street" placeholder="الشارع"
@@ -187,10 +196,16 @@
                 @if ($cardPrice > 0)
                     <div class="flex justify-between text-mocha"><span>💌 البطاقة</span><span>{{ number_format($cardPrice) }} ج.م</span></div>
                 @endif
-                <div class="flex justify-between text-mocha"><span>🚚 التوصيل</span><span>{{ number_format($deliveryFee) }} ج.م</span></div>
+                <div class="flex justify-between text-mocha">
+                    <span>🚚 التوصيل</span>
+                    <span>{{ $deliveryFee !== null ? number_format($deliveryFee).' ج.م' : 'حسب المحافظة' }}</span>
+                </div>
+                @if ($deliveryDays)
+                    <p class="rounded-xl bg-blush px-3 py-2 text-xs font-bold text-brand">📦 التوصيل المتوقع خلال {{ $deliveryDays }}</p>
+                @endif
                 <div class="flex justify-between border-t border-sand pt-3 text-base font-extrabold text-ink">
                     <span>الإجمالي</span>
-                    <span class="text-brand">{{ number_format($itemsTotal + $wrapPrice + $cardPrice + $deliveryFee) }} ج.م</span>
+                    <span class="text-brand">{{ number_format($itemsTotal + $wrapPrice + $cardPrice + ($deliveryFee ?? 0)) }} ج.م{{ $deliveryFee === null ? ' + الشحن' : '' }}</span>
                 </div>
             </div>
 
@@ -207,6 +222,12 @@
                 <span wire:loading.remove wire:target="placeOrder">تأكيد الطلب 🎉</span>
                 <span wire:loading wire:target="placeOrder">جاري تأكيد الطلب…</span>
             </button>
+
+            <p class="mt-3 text-center text-[11px] leading-relaxed text-mocha/60">
+                بتأكيد الطلب انت موافق على
+                <a href="{{ route('web.returns') }}" wire:navigate class="font-bold text-brand hover:underline">سياسة الاستبدال والإرجاع</a>
+                و<a href="{{ route('web.privacy') }}" wire:navigate class="font-bold text-brand hover:underline">سياسة الخصوصية</a>
+            </p>
         </div>
     </div>
 </div>

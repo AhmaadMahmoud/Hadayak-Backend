@@ -1,4 +1,6 @@
 <div>
+    <h1 class="sr-only">هداياك — متجر هدايا وتغليف وتوصيل لكل مصر</h1>
+
     @if ($banners->isNotEmpty())
         {{-- Banners (بيتحكم فيها من الداشبورد) --}}
         <section
@@ -8,7 +10,10 @@
         >
             <div class="relative aspect-[16/9] sm:aspect-[5/2]">
                 @foreach ($banners as $banner)
-                    @php $bImg = \Illuminate\Support\Facades\Storage::disk('public')->url($banner->image); @endphp
+                    @php
+                        $bImg = \Illuminate\Support\Facades\Storage::disk('public')->url($banner->image);
+                        $bMob = $banner->mobile_image ? \Illuminate\Support\Facades\Storage::disk('public')->url($banner->mobile_image) : null;
+                    @endphp
                     <a
                         @if ($banner->link) href="{{ $banner->link }}" @else href="{{ route('web.products') }}" @endif
                         x-show="active === {{ $loop->index }}"
@@ -22,7 +27,10 @@
                         class="absolute inset-0 block"
                         wire:key="banner-{{ $banner->id }}"
                     >
-                        <img src="{{ $bImg }}" alt="{{ $banner->name }}" @if(! $loop->first) loading="lazy" @endif class="size-full object-cover">
+                        <img src="{{ $bImg }}" alt="{{ $banner->name }}" @if(! $loop->first) loading="lazy" @endif class="{{ $bMob ? 'hidden sm:block' : '' }} size-full object-cover">
+                        @if ($bMob)
+                            <img src="{{ $bMob }}" alt="{{ $banner->name }}" @if(! $loop->first) loading="lazy" @endif class="size-full object-cover sm:hidden">
+                        @endif
                     </a>
                 @endforeach
             </div>
@@ -47,7 +55,7 @@
             <img src="{{ asset('images/web/gifts-bg.jpg') }}" alt="" aria-hidden="true" class="absolute inset-0 size-full object-cover opacity-15">
             <div class="relative grid items-center gap-8 px-6 py-14 sm:px-12 md:grid-cols-2 md:py-20">
                 <div>
-                    <h1 class="text-3xl font-extrabold leading-tight sm:text-5xl">فرحتك… هديتنا 🎁</h1>
+                    <p class="text-3xl font-extrabold leading-tight sm:text-5xl">فرحتك… هديتنا 🎁</p>
                     <p class="mt-4 max-w-md text-base leading-relaxed text-white/85 sm:text-lg">
                         اختار الهدية، اكتب كلماتك على بطاقة المعايدة، واحنا نغلفها ونوصلها لحد باب اللي بتحبهم — في أي مكان في مصر.
                     </p>
@@ -68,18 +76,18 @@
     @endif
 
     {{-- Highlights strip --}}
-    <section class="mt-8 grid gap-4 sm:grid-cols-3">
-        <div class="flex items-center gap-3 rounded-2xl border border-sand bg-white p-4">
-            <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blush text-2xl">🎀</span>
-            <div><p class="text-sm font-extrabold text-ink">تغليف مميز</p><p class="text-xs text-mocha">هديتك تتقدم بشكل يليق بيها</p></div>
+    <section class="mt-8 grid grid-cols-3 gap-2 sm:gap-4">
+        <div class="flex flex-col items-center gap-1.5 rounded-2xl border border-sand bg-white p-2.5 text-center sm:flex-row sm:gap-3 sm:p-4 sm:text-right">
+            <span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-blush text-xl sm:size-11 sm:text-2xl">🎀</span>
+            <div><p class="text-xs font-extrabold text-ink sm:text-sm">تغليف مميز</p><p class="hidden text-xs text-mocha sm:block">هديتك تتقدم بشكل يليق بيها</p></div>
         </div>
-        <div class="flex items-center gap-3 rounded-2xl border border-sand bg-white p-4">
-            <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blush text-2xl">🚚</span>
-            <div><p class="text-sm font-extrabold text-ink">توصيل سريع</p><p class="text-xs text-mocha">لحد باب البيت في كل مصر</p></div>
+        <div class="flex flex-col items-center gap-1.5 rounded-2xl border border-sand bg-white p-2.5 text-center sm:flex-row sm:gap-3 sm:p-4 sm:text-right">
+            <span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-blush text-xl sm:size-11 sm:text-2xl">🚚</span>
+            <div><p class="text-xs font-extrabold text-ink sm:text-sm">توصيل سريع</p><p class="hidden text-xs text-mocha sm:block">لحد باب البيت في كل مصر</p></div>
         </div>
-        <div class="flex items-center gap-3 rounded-2xl border border-sand bg-white p-4">
-            <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blush text-2xl">💌</span>
-            <div><p class="text-sm font-extrabold text-ink">بطاقة بكلماتك</p><p class="text-xs text-mocha">رسالتك تتكتب وتوصل مع الهدية</p></div>
+        <div class="flex flex-col items-center gap-1.5 rounded-2xl border border-sand bg-white p-2.5 text-center sm:flex-row sm:gap-3 sm:p-4 sm:text-right">
+            <span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-blush text-xl sm:size-11 sm:text-2xl">💌</span>
+            <div><p class="text-xs font-extrabold text-ink sm:text-sm">بطاقة بكلماتك</p><p class="hidden text-xs text-mocha sm:block">رسالتك تتكتب وتوصل مع الهدية</p></div>
         </div>
     </section>
 
