@@ -53,7 +53,7 @@ class BannerResource extends Resource
                 ->required(),
             FileUpload::make('mobile_image')
                 ->label('صورة الموبايل (اختياري)')
-                ->helperText('نسخة مخصوصة للموبايل بمقاس 1080 × 900 تقريبًا — لو سبتها فاضية هنعرض الصورة الأساسية')
+                ->helperText('نسخة مخصوصة للموبايل بمقاس 1080 × 900 بالظبط (نسبة 6:5) — لو سبتها فاضية هنعرض الصورة الأساسية مقصوصة')
                 ->image()
                 ->disk('public')
                 ->directory('banners')
