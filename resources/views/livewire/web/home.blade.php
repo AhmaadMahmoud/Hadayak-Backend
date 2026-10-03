@@ -53,7 +53,7 @@
         {{-- Hero --}}
         <section class="relative overflow-hidden rounded-3xl bg-gradient-to-bl from-brand to-brand-deep text-white">
             <img src="{{ asset('images/web/gifts-bg.jpg') }}" alt="" aria-hidden="true" class="absolute inset-0 size-full object-cover opacity-15">
-            <div class="relative grid items-center gap-8 px-6 py-14 sm:px-12 md:grid-cols-2 md:py-20">
+            <div class="relative grid grid-cols-1 items-center gap-8 px-6 py-14 sm:px-12 md:grid-cols-2 md:py-20">
                 <div>
                     <p class="text-3xl font-extrabold leading-tight sm:text-5xl">فرحتك… هديتنا 🎁</p>
                     <p class="mt-4 max-w-md text-base leading-relaxed text-white/85 sm:text-lg">
