@@ -55,5 +55,25 @@
     transform-origin: top center;
 }
 
+/* عداد كارت المنتج: دخول الـ stepper ونطة الرقم */
+@keyframes stepper-in {
+    from { opacity: 0; transform: scale(0.6); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.stepper-in {
+    animation: stepper-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes qty-bump {
+    0%   { transform: scale(0.5); opacity: 0; }
+    60%  { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+.qty-bump {
+    animation: qty-bump 0.3s ease-out;
+}
+
 /* Alpine: إخفاء العناصر لحد ما يجهز */
 [x-cloak] { display: none !important; }

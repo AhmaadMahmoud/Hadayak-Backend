@@ -2,38 +2,17 @@
 
 namespace App\Livewire\Web;
 
+use App\Livewire\Web\Concerns\HandlesCardCart;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Service;
-use App\Services\WebCart;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
 class Home extends Component
 {
-    public function addToCart(int $productId): void
-    {
-        $product = Product::where('is_active', true)->with('images')->find($productId);
-
-        if ($product && ($product->stock === null || $product->stock > 0)) {
-            WebCart::add(
-                $product->id,
-                $product->name,
-                (float) $product->price,
-                $product->images->first()?->path ? \Illuminate\Support\Facades\Storage::disk('public')->url($product->images->first()->path) : null,
-            );
-            \App\Support\Track::event('add_to_cart', $product->name, ['product_id' => $product->id]);
-            $this->dispatch('cart-updated');
-            $this->dispatch('cart-added',
-                name: $product->name,
-                price: (float) $product->price,
-                qty: 1,
-                image: WebCart::items()[$product->id]['image'] ?? null,
-                count: WebCart::count(),
-            );
-        }
-    }
+    use HandlesCardCart;
 
     #[Layout('components.web.layout', ['title' => 'الرئيسية'])]
     #[Title('هداياك — فرحتك هديتنا')]

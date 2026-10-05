@@ -2,10 +2,9 @@
 
 namespace App\Livewire\Web;
 
+use App\Livewire\Web\Concerns\HandlesCardCart;
 use App\Models\Category;
 use App\Models\Product;
-use App\Services\WebCart;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -14,6 +13,7 @@ use Livewire\WithPagination;
 
 class Products extends Component
 {
+    use HandlesCardCart;
     use WithPagination;
 
     #[Url(as: 'category')]
@@ -73,28 +73,6 @@ class Products extends Component
         }
     }
 
-    public function addToCart(int $productId): void
-    {
-        $product = Product::where('is_active', true)->with('images')->find($productId);
-
-        if ($product && ($product->stock === null || $product->stock > 0)) {
-            WebCart::add(
-                $product->id,
-                $product->name,
-                (float) $product->price,
-                $product->images->first()?->path ? Storage::disk('public')->url($product->images->first()->path) : null,
-            );
-            \App\Support\Track::event('add_to_cart', $product->name, ['product_id' => $product->id]);
-            $this->dispatch('cart-updated');
-            $this->dispatch('cart-added',
-                name: $product->name,
-                price: (float) $product->price,
-                qty: 1,
-                image: WebCart::items()[$product->id]['image'] ?? null,
-                count: WebCart::count(),
-            );
-        }
-    }
 
     #[Layout('components.web.layout', ['title' => 'المنتجات'])]
     #[Title('المنتجات — هداياك')]

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Web;
 
+use App\Livewire\Web\Concerns\HandlesCardCart;
 use App\Models\Product;
 use App\Models\Review;
 use App\Services\WebCart;
@@ -12,6 +13,8 @@ use Livewire\Component;
 
 class ProductShow extends Component
 {
+    use HandlesCardCart;
+
     public Product $product;
 
     public int $qty = 1;

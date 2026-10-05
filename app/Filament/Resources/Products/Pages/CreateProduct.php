@@ -9,6 +9,11 @@ class CreateProduct extends CreateRecord
 {
     protected static string $resource = ProductResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('create');
+    }
+
     protected function afterCreate(): void
     {
         ProductResource::syncImages(
