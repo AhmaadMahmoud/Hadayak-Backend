@@ -11,6 +11,30 @@
             </a>
         </div>
     @else
+        @if ($freeShippingAt > 0)
+            @php
+                $remaining = max(0, $freeShippingAt - $itemsTotal);
+                $pct = min(100, round($itemsTotal / $freeShippingAt * 100));
+            @endphp
+            <div class="mt-6 flex items-center gap-4 rounded-2xl border border-sand bg-white p-4 sm:p-5">
+                <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-blush text-2xl">🚚</span>
+                <div class="min-w-0 flex-1">
+                    @if ($remaining > 0)
+                        <p class="text-sm font-extrabold text-ink">فاضلك <span class="text-brand">{{ number_format($remaining) }} ج.م</span> والتوصيل يبقى <span class="text-brand">مجاني!</span></p>
+                    @else
+                        <p class="text-sm font-extrabold text-brand">مبروك! 🎉 التوصيل بقى مجاني على طلبك</p>
+                    @endif
+                    <div class="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-sand" role="progressbar" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="h-full rounded-full bg-brand transition-all duration-500" style="width: {{ $pct }}%"></div>
+                    </div>
+                </div>
+                <div class="shrink-0 text-center">
+                    <p class="text-lg font-extrabold leading-tight text-ink">{{ number_format($freeShippingAt) }}</p>
+                    <p class="text-xs font-bold text-mocha">ج.م</p>
+                </div>
+            </div>
+        @endif
+
         <div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3">
             {{-- Items + extras --}}
             <div class="space-y-6 lg:col-span-2">
@@ -126,10 +150,10 @@
                     @if ($cardPrice > 0)
                         <div class="flex justify-between text-mocha"><span>بطاقة المعايدة</span><span>{{ number_format($cardPrice) }} ج.م</span></div>
                     @endif
-                    <div class="flex justify-between text-mocha"><span>التوصيل</span><span class="text-xs">بيتحدد حسب محافظتك</span></div>
+                    <div class="flex justify-between text-mocha"><span>التوصيل</span><span @class(['text-xs', 'font-extrabold text-brand' => $freeShippingAt > 0 && $itemsTotal >= $freeShippingAt])>{{ $freeShippingAt > 0 && $itemsTotal >= $freeShippingAt ? 'مجاني 🎉' : 'بيتحدد حسب محافظتك' }}</span></div>
                     <div class="flex justify-between border-t border-sand pt-3 text-base font-extrabold text-ink">
                         <span>الإجمالي</span>
-                        <span class="text-brand">{{ number_format($itemsTotal + $wrapPrice + $cardPrice) }} ج.م <span class="text-xs font-bold text-mocha">+ الشحن</span></span>
+                        <span class="text-brand">{{ number_format($itemsTotal + $wrapPrice + $cardPrice) }} ج.م @if (! ($freeShippingAt > 0 && $itemsTotal >= $freeShippingAt))<span class="text-xs font-bold text-mocha">+ الشحن</span>@endif</span>
                     </div>
                 </div>
 

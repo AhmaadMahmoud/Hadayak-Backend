@@ -198,7 +198,7 @@
                 @endif
                 <div class="flex justify-between text-mocha">
                     <span>🚚 التوصيل</span>
-                    <span>{{ $deliveryFee !== null ? number_format($deliveryFee).' ج.م' : 'حسب المحافظة' }}</span>
+                    <span>{{ $freeShipping ? 'مجاني 🎉' : ($deliveryFee !== null ? number_format($deliveryFee).' ج.م' : 'حسب المحافظة') }}</span>
                 </div>
                 @if ($deliveryDays)
                     <p class="rounded-xl bg-blush px-3 py-2 text-xs font-bold text-brand">📦 التوصيل المتوقع خلال {{ $deliveryDays }}</p>

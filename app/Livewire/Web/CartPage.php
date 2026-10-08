@@ -92,6 +92,7 @@ class CartPage extends Component
             'wrapPrice' => WebCart::wrapPrice(),
             'cardPrice' => WebCart::cardPrice(),
             'deliveryFee' => (float) Setting::get('delivery_fee', 50),
+            'freeShippingAt' => (float) Setting::get('free_shipping_threshold', 0),
             'wraps' => WrapOption::where('is_active', true)->orderBy('sort_order')->get(),
             'cards' => CardDesign::where('is_active', true)->orderBy('sort_order')->get(),
         ]);

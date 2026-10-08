@@ -212,6 +212,9 @@ class Checkout extends Component
     public function render()
     {
         // المحافظة المختارة: من العنوان المحفوظ أو من اختيار العنوان الجديد
+        $freeAt = (float) \App\Models\Setting::get('free_shipping_threshold', 0);
+        $freeShipping = $freeAt > 0 && WebCart::itemsTotal() >= $freeAt;
+
         $selectedGov = null;
 
         if ($this->showNewAddress || ! $this->addressId) {
@@ -227,7 +230,8 @@ class Checkout extends Component
             'itemsTotal' => WebCart::itemsTotal(),
             'wrapPrice' => WebCart::wrapPrice(),
             'cardPrice' => WebCart::cardPrice(),
-            'deliveryFee' => $selectedGov ? (float) $selectedGov->shipping_fee : null,
+            'deliveryFee' => $freeShipping ? 0.0 : ($selectedGov ? (float) $selectedGov->shipping_fee : null),
+            'freeShipping' => $freeShipping,
             'deliveryDays' => $selectedGov?->delivery_days,
             'codEnabled' => (bool) (int) Setting::get('cod_enabled', 0),
         ]);

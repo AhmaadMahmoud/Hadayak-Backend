@@ -31,6 +31,7 @@ class SiteSettings extends Page
     /** مفاتيح الإعدادات وقيمها الافتراضية */
     private const KEYS = [
         'delivery_fee' => '50',
+        'free_shipping_threshold' => '0',
         'cod_enabled' => '0',
         'delivery_summary' => '١–٣ أيام عمل للقاهرة والجيزة، و٣–٥ أيام لباقي المحافظات',
         'support_phone' => '',
@@ -58,6 +59,7 @@ class SiteSettings extends Page
                 Section::make('التوصيل')
                     ->schema([
                         TextInput::make('delivery_fee')->label('رسوم التوصيل الافتراضية (لو العنوان من غير محافظة)')->numeric()->suffix('ج.م'),
+                        TextInput::make('free_shipping_threshold')->label('حد الشحن المجاني (0 = مفيش شحن مجاني)')->numeric()->suffix('ج.م')->helperText('لو إجمالي المنتجات وصل للرقم ده، التوصيل بيبقى مجاني'),
                         TextInput::make('delivery_summary')->label('جملة مدة التوصيل (بتظهر في صفحة المنتج)'),
                         Toggle::make('cod_enabled')->label('الدفع عند الاستلام متاح'),
                     ])->columns(2),

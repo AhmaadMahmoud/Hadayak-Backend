@@ -82,6 +82,14 @@ class PlaceOrder
             }
 
             $order->load('items');
+
+            // شحن مجاني لو إجمالي المنتجات وصل للحد المحدد في الإعدادات
+            $freeAt = (float) Setting::get('free_shipping_threshold', 0);
+
+            if ($freeAt > 0 && $order->items->sum(fn ($i) => $i->price * $i->qty) >= $freeAt) {
+                $order->delivery_fee = 0;
+            }
+
             $order->recalculateTotals();
 
             return $order;
