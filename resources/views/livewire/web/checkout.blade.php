@@ -142,9 +142,7 @@
                 <h2 class="text-lg font-extrabold text-ink">💳 وسيلة الدفع</h2>
                 <div class="mt-4 space-y-2">
                     @foreach ([
-                        'card' => ['بطاقة ائتمان', true],
-                        'vodafone_cash' => ['فودافون كاش', true],
-                        'instapay' => ['انستا باي', true],
+                        'card' => ['بطاقة بنكية 💳 (فيزا / ماستركارد / ميزة)', $cardEnabled],
                         'cod' => ['الدفع عند الاستلام', $codEnabled],
                     ] as $method => [$label, $enabled])
                         <button

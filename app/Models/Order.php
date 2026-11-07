@@ -32,6 +32,11 @@ class Order extends Model
         'items_total', 'delivery_fee', 'total', 'notes',
     ];
 
+    public function transactions()
+    {
+        return $this->hasMany(PaymentTransaction::class);
+    }
+
     protected function casts(): array
     {
         return [

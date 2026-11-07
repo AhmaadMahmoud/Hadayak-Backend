@@ -28,6 +28,23 @@ class OrderShow extends Component
         $this->order = $order->load('items', 'address');
     }
 
+    public function payNow()
+    {
+        if ($this->order->payment_method !== 'card'
+            || ! in_array($this->order->payment_status, ['pending', 'failed'], true)
+            || $this->order->status === 'cancelled'
+            || ! \App\Services\Paymob::enabled()) {
+            return;
+        }
+
+        try {
+            return $this->redirect(\App\Services\Paymob::checkoutUrl($this->order));
+        } catch (\Throwable $e) {
+            report($e);
+            $this->error = 'حصلت مشكلة في فتح صفحة الدفع — جرب تاني بعد شوية';
+        }
+    }
+
     public function confirmCancel(): void
     {
         $this->error = null;

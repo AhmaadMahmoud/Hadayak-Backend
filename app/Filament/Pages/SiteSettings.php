@@ -33,6 +33,7 @@ class SiteSettings extends Page
         'delivery_fee' => '50',
         'free_shipping_threshold' => '0',
         'cod_enabled' => '0',
+        'card_payment_enabled' => '0',
         'delivery_summary' => '١–٣ أيام عمل للقاهرة والجيزة، و٣–٥ أيام لباقي المحافظات',
         'support_phone' => '',
         'support_whatsapp' => '',
@@ -49,6 +50,7 @@ class SiteSettings extends Page
             $data[$key] = Setting::get($key, $default);
         }
         $data['cod_enabled'] = (bool) (int) $data['cod_enabled'];
+        $data['card_payment_enabled'] = (bool) (int) $data['card_payment_enabled'];
         $this->form->fill($data);
     }
 
@@ -62,6 +64,7 @@ class SiteSettings extends Page
                         TextInput::make('free_shipping_threshold')->label('حد الشحن المجاني (0 = مفيش شحن مجاني)')->numeric()->suffix('ج.م')->helperText('لو إجمالي المنتجات وصل للرقم ده، التوصيل بيبقى مجاني'),
                         TextInput::make('delivery_summary')->label('جملة مدة التوصيل (بتظهر في صفحة المنتج)'),
                         Toggle::make('cod_enabled')->label('الدفع عند الاستلام متاح'),
+                        Toggle::make('card_payment_enabled')->label('الدفع بالبطاقة متاح (Paymob)')->helperText('شغّله بعد ما تحط مفاتيح Paymob في إعدادات السيرفر'),
                     ])->columns(2),
                 Section::make('التواصل والدعم')
                     ->schema([
@@ -83,6 +86,7 @@ class SiteSettings extends Page
     {
         $data = $this->form->getState();
         $data['cod_enabled'] = $data['cod_enabled'] ? '1' : '0';
+        $data['card_payment_enabled'] = $data['card_payment_enabled'] ? '1' : '0';
 
         foreach (self::KEYS as $key => $default) {
             Setting::set($key, (string) ($data[$key] ?? $default));

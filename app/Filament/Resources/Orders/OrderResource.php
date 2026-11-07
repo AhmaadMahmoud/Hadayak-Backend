@@ -166,6 +166,21 @@ class OrderResource extends Resource
                 TextColumn::make('payment_method')
                     ->label('الدفع')
                     ->formatStateUsing(fn (string $state): string => Order::PAYMENT_METHODS[$state] ?? $state),
+                TextColumn::make('payment_status')
+                    ->label('حالة الدفع')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'paid' => 'مدفوع',
+                        'failed' => 'فشل',
+                        'refunded' => 'مسترد',
+                        default => 'في الانتظار',
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'paid' => 'success',
+                        'failed' => 'danger',
+                        'refunded' => 'warning',
+                        default => 'gray',
+                    }),
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge()

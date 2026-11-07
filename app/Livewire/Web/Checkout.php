@@ -48,7 +48,7 @@ class Checkout extends Component
 
     public string $recipientPhone = '';
 
-    public string $paymentMethod = 'card';
+    public string $paymentMethod = 'cod';
 
     public ?string $error = null;
 
@@ -91,7 +91,7 @@ class Checkout extends Component
     {
         $cod = (bool) (int) Setting::get('cod_enabled', 0);
 
-        if (in_array($method, ['card', 'vodafone_cash', 'instapay'], true) || ($method === 'cod' && $cod)) {
+        if (($method === 'card' && \App\Services\Paymob::enabled()) || ($method === 'cod' && $cod)) {
             $this->paymentMethod = $method;
         }
     }
@@ -174,6 +174,12 @@ class Checkout extends Component
             );
         }
 
+        if ($this->paymentMethod === 'card' && ! \App\Services\Paymob::enabled()) {
+            $this->error = 'الدفع بالبطاقة غير متاح حالياً — اختار وسيلة دفع تانية';
+
+            return;
+        }
+
         try {
             $order = PlaceOrder::handle($user, [
                 'items' => collect(WebCart::items())->map(fn ($i) => [
@@ -203,6 +209,15 @@ class Checkout extends Component
         WebCart::clear();
         $this->dispatch('cart-updated');
         session()->flash('order_placed', $order->number);
+
+        if ($this->paymentMethod === 'card') {
+            try {
+                return $this->redirect(\App\Services\Paymob::checkoutUrl($order));
+            } catch (\Throwable $e) {
+                report($e);
+                session()->flash('payment_result', 'init_failed');
+            }
+        }
 
         return $this->redirect(route('web.order', $order), navigate: true);
     }
@@ -234,6 +249,7 @@ class Checkout extends Component
             'freeShipping' => $freeShipping,
             'deliveryDays' => $selectedGov?->delivery_days,
             'codEnabled' => (bool) (int) Setting::get('cod_enabled', 0),
+            'cardEnabled' => \App\Services\Paymob::enabled(),
         ]);
     }
 }

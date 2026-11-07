@@ -22,6 +22,20 @@
         >{{ \App\Models\Order::STATUSES[$order->status] ?? $order->status }}</span>
     </div>
 
+    @if (session('payment_result') === 'success')
+        <p class="mt-4 rounded-2xl bg-[#E8F5E9] p-3 text-center text-sm font-extrabold text-[#2E7D32]">تم الدفع بنجاح 🎉 وجاري تأكيده — طلبك قيد التجهيز</p>
+    @elseif (session('payment_result') === 'failed')
+        <p class="mt-4 rounded-2xl bg-blush p-3 text-center text-sm font-bold text-brand">عملية الدفع ما كملتش 😔 تقدر تحاول تاني من الزرار اللي تحت</p>
+    @elseif (session('payment_result') === 'init_failed')
+        <p class="mt-4 rounded-2xl bg-blush p-3 text-center text-sm font-bold text-brand">طلبك اتسجل بس حصلت مشكلة في فتح صفحة الدفع — جرب من الزرار اللي تحت</p>
+    @endif
+
+    @if ($order->payment_method === 'card' && in_array($order->payment_status, ['pending', 'failed']) && $order->status !== 'cancelled' && \App\Services\Paymob::enabled())
+        <button type="button" wire:click="payNow" wire:loading.attr="disabled" class="mt-4 w-full rounded-full bg-brand px-8 py-3.5 text-base font-extrabold text-white shadow-lg transition hover:bg-brand-dark disabled:opacity-60">
+            إتمام الدفع بالبطاقة 💳
+        </button>
+    @endif
+
     @if ($error)
         <p class="mt-4 rounded-2xl bg-blush p-3 text-center text-sm font-bold text-brand">{{ $error }}</p>
     @endif

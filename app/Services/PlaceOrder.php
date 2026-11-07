@@ -96,7 +96,8 @@ class PlaceOrder
         });
 
         // إيميل تأكيد الطلب — فشل الإرسال عمره ما يكسر الطلب نفسه
-        if ($user->email) {
+        // (طلبات الكارت: الإيميل بيتبعت بعد نجاح الدفع من الـ webhook)
+        if ($user->email && $data['payment_method'] !== 'card') {
             try {
                 Mail::to($user->email)->send(new OrderConfirmed($order));
             } catch (\Throwable $e) {

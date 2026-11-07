@@ -44,3 +44,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show']);
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
 });
+
+// ===== Paymob: إشعار نتيجة الدفع =====
+Route::post('/paymob/webhook', [\App\Http\Controllers\PaymobController::class, 'webhook'])->name('paymob.webhook');
