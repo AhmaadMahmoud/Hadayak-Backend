@@ -445,13 +445,37 @@
                     const prevDraw = this.drawMode;
                     this.drawMode = false;
                     try {
-                        const keep = n => ! (n.getAttribute && n.getAttribute('data-html2canvas-ignore') !== null);
+                        // لقطة نضيفة: نسخة من الكارت من غير صفات Alpine (بتكسر الـ SVG)
+                        const snap = async () => {
+                            const src = this.$refs.card;
+                            const clone = src.cloneNode(true);
+                            const srcCv = src.querySelectorAll('canvas');
+                            const cloneCv = clone.querySelectorAll('canvas');
+                            srcCv.forEach((c, i) => {
+                                cloneCv[i].width = c.width;
+                                cloneCv[i].height = c.height;
+                                cloneCv[i].getContext('2d').drawImage(c, 0, 0);
+                            });
+                            [clone, ...clone.querySelectorAll('*')].forEach(el => {
+                                [...el.attributes].forEach(a => { if (/^(x-|:|@)/.test(a.name) || a.name.startsWith('wire:')) el.removeAttribute(a.name) });
+                            });
+                            clone.querySelectorAll('[data-html2canvas-ignore], template').forEach(el => el.remove());
+                            const holder = document.createElement('div');
+                            holder.style.cssText = 'position:fixed;left:-10000px;top:0;width:' + src.offsetWidth + 'px;';
+                            holder.appendChild(clone);
+                            document.body.appendChild(holder);
+                            try {
+                                return await htmlToImage.toCanvas(clone, { pixelRatio: 2.5 });
+                            } finally {
+                                holder.remove();
+                            }
+                        };
                         const shots = {};
                         for (const f of ['front', 'inside']) {
                             this.face = f;
                             await this.$nextTick();
                             await new Promise(r => setTimeout(r, 150));
-                            shots[f] = await htmlToImage.toCanvas(this.$refs.card, { pixelRatio: 2.5, filter: keep });
+                            shots[f] = await snap();
                         }
                         this.face = prevFace;
                         const gap = 48;
