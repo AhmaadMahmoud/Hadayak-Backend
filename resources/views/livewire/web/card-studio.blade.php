@@ -271,7 +271,7 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
         function hdkCardStudio() {
@@ -445,12 +445,13 @@
                     const prevDraw = this.drawMode;
                     this.drawMode = false;
                     try {
+                        const keep = n => ! (n.getAttribute && n.getAttribute('data-html2canvas-ignore') !== null);
                         const shots = {};
                         for (const f of ['front', 'inside']) {
                             this.face = f;
                             await this.$nextTick();
-                            await new Promise(r => setTimeout(r, 120));
-                            shots[f] = await html2canvas(this.$refs.card, { scale: 2.5, useCORS: true, backgroundColor: null });
+                            await new Promise(r => setTimeout(r, 150));
+                            shots[f] = await htmlToImage.toCanvas(this.$refs.card, { pixelRatio: 2.5, filter: keep });
                         }
                         this.face = prevFace;
                         const gap = 48;
@@ -463,11 +464,12 @@
                         ctx.drawImage(shots.front, 0, 0);
                         ctx.drawImage(shots.inside, 0, shots.front.height + gap);
                         try { localStorage.removeItem('hdk_card_draft') } catch (e) {}
-                        await this.$wire.saveCard(out.toDataURL('image/png'));
+                        await this.$wire.saveCard(out.toDataURL('image/jpeg', 0.92));
                     } catch (e) {
                         this.saving = false;
                         this.drawMode = prevDraw;
-                        alert('حصلت مشكلة، جرب تاني');
+                        console.error('card save failed:', e);
+                        alert('حصلت مشكلة: ' + (e && e.message ? e.message : e));
                     }
                 },
             };

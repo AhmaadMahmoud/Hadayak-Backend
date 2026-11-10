@@ -22,15 +22,23 @@ class CardStudio extends Component
     {
         $this->error = null;
 
-        $prefix = 'data:image/png;base64,';
+        $ext = null;
 
-        if (! str_starts_with($image, $prefix)) {
+        foreach (['data:image/png;base64,' => 'png', 'data:image/jpeg;base64,' => 'jpg'] as $prefix => $e) {
+            if (str_starts_with($image, $prefix)) {
+                $ext = $e;
+                $image = substr($image, strlen($prefix));
+                break;
+            }
+        }
+
+        if ($ext === null) {
             $this->error = 'حصلت مشكلة في حفظ التصميم — جرب تاني';
 
             return;
         }
 
-        $binary = base64_decode(substr($image, strlen($prefix)), true);
+        $binary = base64_decode($image, true);
 
         // حد أقصى 12 ميجا للصورة النهائية (وشين بجودة طباعة)
         if ($binary === false || strlen($binary) < 1000 || strlen($binary) > 12 * 1024 * 1024) {
@@ -39,7 +47,7 @@ class CardStudio extends Component
             return;
         }
 
-        $path = 'custom-cards/' . now()->format('Ymd') . '-' . Str::lower(Str::random(12)) . '.png';
+        $path = 'custom-cards/' . now()->format('Ymd') . '-' . Str::lower(Str::random(12)) . '.' . $ext;
         Storage::disk('public')->put($path, $binary);
 
         WebCart::setCustomCard($path, (float) Setting::get('custom_card_price', 0));
