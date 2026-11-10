@@ -34,6 +34,7 @@ class SiteSettings extends Page
         'free_shipping_threshold' => '0',
         'cod_enabled' => '0',
         'card_payment_enabled' => '0',
+        'custom_card_price' => '0',
         'delivery_summary' => '١–٣ أيام عمل للقاهرة والجيزة، و٣–٥ أيام لباقي المحافظات',
         'support_phone' => '',
         'support_whatsapp' => '',
@@ -65,6 +66,10 @@ class SiteSettings extends Page
                         TextInput::make('delivery_summary')->label('جملة مدة التوصيل (بتظهر في صفحة المنتج)'),
                         Toggle::make('cod_enabled')->label('الدفع عند الاستلام متاح'),
                         Toggle::make('card_payment_enabled')->label('الدفع بالبطاقة متاح (Paymob)')->helperText('شغّله بعد ما تحط مفاتيح Paymob في إعدادات السيرفر'),
+                    ])->columns(2),
+                Section::make('كارت المعايدة المخصص (ستوديو التصميم)')
+                    ->schema([
+                        TextInput::make('custom_card_price')->label('سعر الكارت المخصص')->numeric()->suffix('ج.م')->helperText('0 = مجاني — السعر بيظهر للعميل قبل ما يبدأ التصميم'),
                     ])->columns(2),
                 Section::make('التواصل والدعم')
                     ->schema([

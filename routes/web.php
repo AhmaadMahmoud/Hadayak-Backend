@@ -20,6 +20,7 @@ Route::get('/products', Products::class)->name('web.products');
 Route::get('/products/{product}', ProductShow::class)->name('web.product');
 Route::get('/services/{service}', ServiceOrder::class)->name('web.service');
 Route::get('/cart', CartPage::class)->name('web.cart');
+Route::get('/card-studio', \App\Livewire\Web\CardStudio::class)->name('web.card-studio');
 Route::get('/checkout', Checkout::class)->name('web.checkout');
 
 // ===== الحساب =====

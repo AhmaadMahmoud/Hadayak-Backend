@@ -27,6 +27,38 @@
     "file": "assets/instrument-sans-600-normal-B9e8oLYv.woff",
     "src": "_instrument-sans-600-normal-B9e8oLYv.woff"
   },
+  "node_modules/@fontsource/amiri/files/amiri-arabic-400-normal.woff": {
+    "file": "assets/amiri-arabic-400-normal-C_1DQziU.woff",
+    "src": "node_modules/@fontsource/amiri/files/amiri-arabic-400-normal.woff"
+  },
+  "node_modules/@fontsource/amiri/files/amiri-arabic-400-normal.woff2": {
+    "file": "assets/amiri-arabic-400-normal-D0NIBXga.woff2",
+    "src": "node_modules/@fontsource/amiri/files/amiri-arabic-400-normal.woff2"
+  },
+  "node_modules/@fontsource/amiri/files/amiri-arabic-700-normal.woff": {
+    "file": "assets/amiri-arabic-700-normal-dUd6sHq-.woff",
+    "src": "node_modules/@fontsource/amiri/files/amiri-arabic-700-normal.woff"
+  },
+  "node_modules/@fontsource/amiri/files/amiri-arabic-700-normal.woff2": {
+    "file": "assets/amiri-arabic-700-normal-D8FrblyB.woff2",
+    "src": "node_modules/@fontsource/amiri/files/amiri-arabic-700-normal.woff2"
+  },
+  "node_modules/@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-400-normal.woff": {
+    "file": "assets/aref-ruqaa-arabic-400-normal-DTcVTQXE.woff",
+    "src": "node_modules/@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-400-normal.woff"
+  },
+  "node_modules/@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-400-normal.woff2": {
+    "file": "assets/aref-ruqaa-arabic-400-normal-AKnCEuAE.woff2",
+    "src": "node_modules/@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-400-normal.woff2"
+  },
+  "node_modules/@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-700-normal.woff": {
+    "file": "assets/aref-ruqaa-arabic-700-normal-DLleZ2O-.woff",
+    "src": "node_modules/@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-700-normal.woff"
+  },
+  "node_modules/@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-700-normal.woff2": {
+    "file": "assets/aref-ruqaa-arabic-700-normal-D30apH1C.woff2",
+    "src": "node_modules/@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-700-normal.woff2"
+  },
   "node_modules/@fontsource/cairo/files/cairo-arabic-400-normal.woff": {
     "file": "assets/cairo-arabic-400-normal-CAYwymWN.woff",
     "src": "node_modules/@fontsource/cairo/files/cairo-arabic-400-normal.woff"
@@ -75,8 +107,24 @@
     "file": "assets/cairo-latin-700-normal-C3GYtKbV.woff2",
     "src": "node_modules/@fontsource/cairo/files/cairo-latin-700-normal.woff2"
   },
+  "node_modules/@fontsource/reem-kufi/files/reem-kufi-arabic-400-normal.woff": {
+    "file": "assets/reem-kufi-arabic-400-normal-BBJU0Qav.woff",
+    "src": "node_modules/@fontsource/reem-kufi/files/reem-kufi-arabic-400-normal.woff"
+  },
+  "node_modules/@fontsource/reem-kufi/files/reem-kufi-arabic-400-normal.woff2": {
+    "file": "assets/reem-kufi-arabic-400-normal-DtbpzZsC.woff2",
+    "src": "node_modules/@fontsource/reem-kufi/files/reem-kufi-arabic-400-normal.woff2"
+  },
+  "node_modules/@fontsource/reem-kufi/files/reem-kufi-arabic-700-normal.woff": {
+    "file": "assets/reem-kufi-arabic-700-normal-2X0LRV6P.woff",
+    "src": "node_modules/@fontsource/reem-kufi/files/reem-kufi-arabic-700-normal.woff"
+  },
+  "node_modules/@fontsource/reem-kufi/files/reem-kufi-arabic-700-normal.woff2": {
+    "file": "assets/reem-kufi-arabic-700-normal-D4RhYlR1.woff2",
+    "src": "node_modules/@fontsource/reem-kufi/files/reem-kufi-arabic-700-normal.woff2"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-C7BfBJfN.css",
+    "file": "assets/app-xn-bvx8-.css",
     "name": "app",
     "names": [
       "app.css"
@@ -95,7 +143,19 @@
       "assets/cairo-latin-400-normal-Dh7otpdh.woff2",
       "assets/cairo-latin-400-normal-b1R3q6Pf.woff",
       "assets/cairo-latin-700-normal-C3GYtKbV.woff2",
-      "assets/cairo-latin-700-normal-6fcUy4Rc.woff"
+      "assets/cairo-latin-700-normal-6fcUy4Rc.woff",
+      "assets/amiri-arabic-400-normal-D0NIBXga.woff2",
+      "assets/amiri-arabic-400-normal-C_1DQziU.woff",
+      "assets/amiri-arabic-700-normal-D8FrblyB.woff2",
+      "assets/amiri-arabic-700-normal-dUd6sHq-.woff",
+      "assets/reem-kufi-arabic-400-normal-DtbpzZsC.woff2",
+      "assets/reem-kufi-arabic-400-normal-BBJU0Qav.woff",
+      "assets/reem-kufi-arabic-700-normal-D4RhYlR1.woff2",
+      "assets/reem-kufi-arabic-700-normal-2X0LRV6P.woff",
+      "assets/aref-ruqaa-arabic-400-normal-AKnCEuAE.woff2",
+      "assets/aref-ruqaa-arabic-400-normal-DTcVTQXE.woff",
+      "assets/aref-ruqaa-arabic-700-normal-D30apH1C.woff2",
+      "assets/aref-ruqaa-arabic-700-normal-DLleZ2O-.woff"
     ]
   },
   "resources/js/app.js": {

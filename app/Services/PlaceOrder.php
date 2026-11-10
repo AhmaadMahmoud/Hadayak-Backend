@@ -40,6 +40,7 @@ class PlaceOrder
         $order = DB::transaction(function () use ($data, $user, $address) {
             $wrap = isset($data['wrap_option_id']) ? WrapOption::find($data['wrap_option_id']) : null;
             $card = isset($data['card_design_id']) ? CardDesign::find($data['card_design_id']) : null;
+            $customCard = $data['custom_card_image'] ?? null;
 
             $order = $user->orders()->create([
                 'address_id' => $data['address_id'],
@@ -48,9 +49,12 @@ class PlaceOrder
                 'recipient_phone' => $data['recipient_phone'] ?? null,
                 'wrap_option_id' => $wrap?->id,
                 'wrap_price' => $wrap?->price ?? 0,
-                'card_design_id' => $card?->id,
-                'card_price' => $card?->price ?? 0,
+                'card_design_id' => $customCard ? null : $card?->id,
+                'card_price' => $customCard
+                    ? (float) Setting::get('custom_card_price', 0)
+                    : ($card?->price ?? 0),
                 'card_message' => $data['card_message'] ?? null,
+                'custom_card_image' => $customCard,
                 'payment_method' => $data['payment_method'],
                 'delivery_fee' => $address->shippingFee(),
             ]);

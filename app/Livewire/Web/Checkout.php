@@ -193,6 +193,7 @@ class Checkout extends Component
                 'wrap_option_id' => WebCart::wrapId(),
                 'card_design_id' => WebCart::cardId(),
                 'card_message' => WebCart::cardMessage(),
+                'custom_card_image' => WebCart::customCardImage(),
                 'payment_method' => $this->paymentMethod,
             ]);
         } catch (ValidationException $e) {

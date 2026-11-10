@@ -11,6 +11,10 @@
             </a>
         </div>
     @else
+        @if (session('custom_card_saved'))
+            <p class="mt-4 rounded-2xl bg-[#E8F5E9] p-3 text-center text-sm font-extrabold text-[#2E7D32]">كارتك الخاص اتحفظ واتضاف لطلبك 🎉</p>
+        @endif
+
         @if ($freeShippingAt > 0)
             @php
                 $remaining = max(0, $freeShippingAt - $itemsTotal);
@@ -104,6 +108,29 @@
                 @if ($cards->isNotEmpty())
                     <div class="rounded-2xl border border-sand bg-white p-5">
                         <h2 class="text-lg font-extrabold text-ink">💌 بطاقة معايدة <span class="text-xs font-bold text-mocha/60">(اختياري)</span></h2>
+
+                        @if ($customCardImage)
+                            <div class="mt-4 flex items-center gap-3 rounded-2xl border-2 border-brand bg-blush p-3">
+                                <img src="{{ asset('storage/' . $customCardImage) }}" alt="كارتك المخصص" class="h-16 w-32 rounded-xl border border-sand object-cover">
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-sm font-extrabold text-ink">كارتك الخاص جاهز 🎨</p>
+                                    <p class="text-xs font-bold text-brand">{{ $customCardSettingPrice > 0 ? number_format($customCardSettingPrice) . ' ج.م' : 'مجاناً' }}</p>
+                                </div>
+                                <a href="{{ route('web.card-studio') }}" wire:navigate class="text-xs font-extrabold text-mocha transition hover:text-brand">تصميم جديد</a>
+                                <button type="button" wire:click="removeCustomCard" class="text-xs font-extrabold text-brand hover:underline">حذف</button>
+                            </div>
+                        @else
+                            <a href="{{ route('web.card-studio') }}" wire:navigate class="mt-4 flex items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-brand/40 bg-cream p-4 transition hover:border-brand hover:bg-blush/40">
+                                <span class="flex items-center gap-3">
+                                    <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-blush text-xl">🎨</span>
+                                    <span>
+                                        <span class="block text-sm font-extrabold text-ink">صمّم كارتك بنفسك ✨</span>
+                                        <span class="block text-xs font-bold text-mocha">اكتب رسالتك وزيّنها على ذوقك — في دقيقة واحدة</span>
+                                    </span>
+                                </span>
+                                <span class="shrink-0 text-xs font-extrabold text-brand">{{ $customCardSettingPrice > 0 ? number_format($customCardSettingPrice) . ' ج.م' : 'مجاناً' }}</span>
+                            </a>
+                        @endif
                         <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                             @foreach ($cards as $card)
                                 @php $cImg = $card->image ? \Illuminate\Support\Facades\Storage::disk('public')->url($card->image) : null; @endphp

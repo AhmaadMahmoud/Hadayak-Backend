@@ -60,6 +60,12 @@ class CartPage extends Component
         }
     }
 
+    public function removeCustomCard(): void
+    {
+        \App\Services\WebCart::setCustomCard(null);
+        $this->dispatch('cart-updated');
+    }
+
     public function selectCard(?int $id): void
     {
         if ($id === $this->cardId) {
@@ -93,6 +99,8 @@ class CartPage extends Component
             'cardPrice' => WebCart::cardPrice(),
             'deliveryFee' => (float) Setting::get('delivery_fee', 50),
             'freeShippingAt' => (float) Setting::get('free_shipping_threshold', 0),
+            'customCardImage' => WebCart::customCardImage(),
+            'customCardSettingPrice' => (float) Setting::get('custom_card_price', 0),
             'wraps' => WrapOption::where('is_active', true)->orderBy('sort_order')->get(),
             'cards' => CardDesign::where('is_active', true)->orderBy('sort_order')->get(),
         ]);

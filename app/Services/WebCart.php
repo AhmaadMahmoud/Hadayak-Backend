@@ -92,6 +92,30 @@ class WebCart
             'webcart.card_price' => $id ? $price : 0,
             'webcart.card_message' => $id ? $message : null,
         ]);
+
+        // اختيار كارت جاهز بيلغي الكارت المخصص
+        if ($id) {
+            session(['webcart.custom_card_image' => null, 'webcart.custom_card_price' => 0]);
+        }
+    }
+
+    // ===== الكارت المخصص (ستوديو التصميم) =====
+    public static function setCustomCard(?string $imagePath, float $price = 0): void
+    {
+        session([
+            'webcart.custom_card_image' => $imagePath,
+            'webcart.custom_card_price' => $imagePath ? $price : 0,
+        ]);
+
+        // الكارت المخصص بيلغي الكارت الجاهز
+        if ($imagePath) {
+            session(['webcart.card_id' => null, 'webcart.card_price' => 0]);
+        }
+    }
+
+    public static function customCardImage(): ?string
+    {
+        return session('webcart.custom_card_image');
     }
 
     public static function cardId(): ?int
@@ -101,6 +125,10 @@ class WebCart
 
     public static function cardPrice(): float
     {
+        if (self::customCardImage()) {
+            return (float) session('webcart.custom_card_price', 0);
+        }
+
         return (float) session('webcart.card_price', 0);
     }
 

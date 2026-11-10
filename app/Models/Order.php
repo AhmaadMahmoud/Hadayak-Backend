@@ -27,7 +27,7 @@ class Order extends Model
     protected $fillable = [
         'number', 'user_id', 'address_id', 'status',
         'delivery_type', 'recipient_name', 'recipient_phone', 'hide_invoice',
-        'wrap_option_id', 'wrap_price', 'card_design_id', 'card_price', 'card_message',
+        'wrap_option_id', 'wrap_price', 'card_design_id', 'card_price', 'card_message', 'custom_card_image',
         'payment_method', 'payment_status', 'payment_reference',
         'items_total', 'delivery_fee', 'total', 'notes',
     ];

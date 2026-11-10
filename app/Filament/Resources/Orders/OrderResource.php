@@ -116,6 +116,11 @@ class OrderResource extends Resource
                             if ($record->cardDesign) {
                                 $lines[] = '💌 كارت: ' . e($record->cardDesign->name) . ' — ' . number_format((float) $record->card_price) . ' ج.م';
                             }
+                            if ($record->custom_card_image) {
+                                $url = \Illuminate\Support\Facades\Storage::disk('public')->url($record->custom_card_image);
+                                $lines[] = '🎨 كارت مخصص من تصميم العميل — ' . number_format((float) $record->card_price) . ' ج.م';
+                                $lines[] = '<a href="' . $url . '" target="_blank" title="افتح بالحجم الكامل للطباعة"><img src="' . $url . '" style="max-width:340px;border-radius:12px;border:1px solid #e5e0da;margin-top:6px;" /></a>';
+                            }
                             if ($record->card_message) {
                                 $lines[] = '«' . e($record->card_message) . '»';
                             }
